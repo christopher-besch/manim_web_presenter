@@ -1,2 +1,3 @@
-# manim_web_presenter
+# Manim Web Presenter
+
 Web Presentation using Manim
