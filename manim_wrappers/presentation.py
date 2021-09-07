@@ -104,15 +104,15 @@ class Presentation(manim.Scene):
         manim.config.max_files_cached = max_files_cached
 
         # copy intermediate video files
-        files = []
+        animations = []
         for src_file in self.renderer.file_writer.partial_movie_files:
-            assert src_file.endswith(".mp4"), "Only mp4 files are supported; Did you add a 'wait' or 'play' statement to the presentation?"
+            assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
             shutil.copyfile(src_file, dst_file)
-            files.append(dst_file)
+            animations.append(dst_file)
 
         with open(self.intel_file, "w") as file:
             json.dump({
                 "slides": [slide.get_dict() for slide in self.slides],
-                "files": files
+                "animations": animations
             }, file)
