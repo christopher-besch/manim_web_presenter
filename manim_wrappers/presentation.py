@@ -86,6 +86,7 @@ class Presentation(manim.Scene):
         self.__next_slide("loop", name)
 
     # end last slide and start new loop slide
+    # loop finishes first before going to next slide
     def next_complete_loop_slide(self, name: Optional[str] = None):
         self.__next_slide("complete_loop", name)
 
