@@ -39,8 +39,6 @@ class Presentation(manim.Scene):
         super().__init__(*args, **kwargs)
 
         self.slides: List[Slide] = []
-        # paths to intermediate files created by manim
-        self.files: List[str] = []
         self.next_animation = 0
 
         # create or clear global output folder
@@ -91,6 +89,12 @@ class Presentation(manim.Scene):
     def next_complete_loop_slide(self, name: Optional[str] = None):
         self.__next_slide("complete_loop", name)
 
+    # after slides have been defined but before render to files
+    def tear_down(self, *args, **kwargs):
+        self.__finish_last_slide()
+        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
+        super().tear_down(*args, **kwargs)
+
     def render(self, *args, **kwargs):
         # don't delete any intermediate files
         max_files_cached = manim.config.max_files_cached
@@ -99,21 +103,15 @@ class Presentation(manim.Scene):
         manim.config.max_files_cached = max_files_cached
 
         # copy intermediate video files
-        # update files list
-        self.files = []
+        files = []
         for src_file in self.renderer.file_writer.partial_movie_files:
-            assert src_file.endswith(".mp4"), "Only mp4 files are supported; Did you add a wait or play statement to the presentation?"
+            assert src_file.endswith(".mp4"), "Only mp4 files are supported; Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
             shutil.copyfile(src_file, dst_file)
-            self.files.append(dst_file)
-
-    def tear_down(self, *args, **kwargs):
-        self.__finish_last_slide()
-        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
+            files.append(dst_file)
 
         with open(self.intel_file, "w") as file:
             json.dump({
                 "slides": [slide.get_dict() for slide in self.slides],
-                "files": self.files
+                "files": files
             }, file)
-        super().tear_down(*args, **kwargs)
