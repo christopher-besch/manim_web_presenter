@@ -1,1 +1,0 @@
-(()=>{"use strict";document.body.onload=()=>{!function(e,t){let n=new XMLHttpRequest;n.onreadystatechange=()=>{if(4==n.readyState)try{t(JSON.parse(n.responseText),n.status)}catch(e){t(e)}},n.open("GET","index.json",!0),n.send()}(0,((e,t)=>{console.log(e)}))}})();
