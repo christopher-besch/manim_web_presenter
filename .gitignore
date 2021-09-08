@@ -132,3 +132,4 @@ media/
 presentation/
 
 node_modules/
+manim_web_presenter/web/index.js

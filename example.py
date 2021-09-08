@@ -1,5 +1,4 @@
-from manim import *
-from manim_web_presenter import Presentation
+from manim_web_presenter import *
 
 
 class Test(Presentation):

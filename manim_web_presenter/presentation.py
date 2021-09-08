@@ -135,7 +135,6 @@ class Presentation(manim.Scene):
             "index.html",
             "index.js"
         ]
-        print(animations[self.slides[0].first_animation:self.slides[0].after_last_animation])
         for file in web_files:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
         write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), animations=animations, slides=self.slides)
