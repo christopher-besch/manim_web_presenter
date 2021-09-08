@@ -132,8 +132,7 @@ class Presentation(manim.Scene):
         # copy and configure web site over
         web_folder = os.path.join(FILE_DIR_PATH, "web")
         web_files = [
-            "index.html",
-            "index.js"
+            "index.html"
         ]
         for file in web_files:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))

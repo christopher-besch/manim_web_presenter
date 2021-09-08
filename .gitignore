@@ -133,7 +133,8 @@ presentation/
 
 node_modules/
 package-lock.json
-manim_web_presenter/web/index.js
+manim_web_presenter/web/index.html
+manim_web_presenter/web/tmp/
 
 # Visual Studio
 .vs/
