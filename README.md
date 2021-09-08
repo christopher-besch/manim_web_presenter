@@ -11,7 +11,7 @@ Web Presentation using Manim
 
 ### Compile
 
-- Go into `web directory` and run `npm run build_debug` or `npm run build_release`
+- Go into `web directory and run `npm run build_debug` or `npm run build_release`
 
 ### Use
 
