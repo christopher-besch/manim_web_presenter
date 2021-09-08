@@ -19,9 +19,9 @@ function get_json(url: string, callback: { (response: any, success: boolean): vo
     request.send();
 }
 
-// Open manim web controls window
+// open manim web controls window
 function open_manim_web_controls(): boolean {
-    // If the manim web controls window is not opened, then open a popup window
+    // if the manim web controls window is not opened, then open a popup window
     if (manim_web_controls == null || manim_web_controls.closed) {
         manim_web_controls = window.open("/fallback.html", "Manim Web Controls", "resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no");
         return manim_web_controls != null;
