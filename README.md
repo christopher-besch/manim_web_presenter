@@ -7,7 +7,7 @@ Web Presentation using Manim
 - Clone repository: `git clone https://github.com/christopher-besch/manim_web_presenter`
 - Install [Manim Community](https://docs.manim.community/en/stable/installation.html)
 - Install required python modules: `pip3 install -r requirements.txt`
-- Install npm devDependencies go into `web` directory and run `npm install`
+- Install npm devDependencies: go into `web` directory and run `npm install`
 
 ### Compile
 
