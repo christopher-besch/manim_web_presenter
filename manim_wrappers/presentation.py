@@ -53,9 +53,9 @@ class Presentation(manim.Scene):
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
         # stores intel about how to present slides
-        self.intel_file = os.path.join(self.output_folder, f"{slide_name}.json")
+        self.intel_file = os.path.join(self.output_folder, "index.json")
 
-        # first slide can be replaced with a loop
+        # first slide can be replaced with a loop <- gets deleted when immediately creating a new slide
         self.next_normal_slide()
 
     def play(self, *args, **kwargs):
@@ -113,6 +113,6 @@ class Presentation(manim.Scene):
 
         with open(self.intel_file, "w") as file:
             json.dump({
+                "animations": animations,
                 "slides": [slide.get_dict() for slide in self.slides],
-                "animations": animations
             }, file)
