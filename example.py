@@ -1,5 +1,5 @@
 from manim import *
-from manim_wrappers import Presentation
+from manim_web_presenter import Presentation
 
 
 class Test(Presentation):

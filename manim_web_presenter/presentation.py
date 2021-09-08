@@ -2,11 +2,21 @@ import manim
 import os
 import shutil
 import json
-from typing import List, Optional, Dict
 import pathlib
+from jinja2 import Template, StrictUndefined
+from typing import List, Optional, Dict
 
 FILE_DIR_PATH = pathlib.Path(__file__).parent.resolve()
 GLOBAL_OUTPUT_FOLDER = "presentation"
+
+
+# copy file with jinja2 templating
+def write_template(in_file, out_file, **variables):
+    with open(in_file, "r", encoding="utf-8") as file:
+        template = Template(file.read(), undefined=StrictUndefined)
+    out = template.render(**variables)
+    with open(out_file, "w", encoding="utf-8") as file:
+        file.write(out)
 
 
 # represent
@@ -111,7 +121,7 @@ class Presentation(manim.Scene):
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
             shutil.copyfile(src_file, dst_file)
-            animations.append(dst_file)
+            animations.append(os.path.basename(dst_file))
 
         with open(self.intel_file, "w") as file:
             json.dump({
@@ -120,3 +130,12 @@ class Presentation(manim.Scene):
             }, file)
 
         # copy and configure web site over
+        web_folder = os.path.join(FILE_DIR_PATH, "web")
+        web_files = [
+            "index.html",
+            "index.js"
+        ]
+        print(animations[self.slides[0].first_animation:self.slides[0].after_last_animation])
+        for file in web_files:
+            shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
+        write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), animations=animations, slides=self.slides)
