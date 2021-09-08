@@ -134,3 +134,9 @@ presentation/
 node_modules/
 package-lock.json
 index.js
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.*
