@@ -3,7 +3,9 @@ import os
 import shutil
 import json
 from typing import List, Optional, Dict
+import pathlib
 
+FILE_DIR_PATH = pathlib.Path(__file__).parent.resolve()
 GLOBAL_OUTPUT_FOLDER = "presentation"
 
 
@@ -96,10 +98,10 @@ class Presentation(manim.Scene):
         assert len(self.slides) != 0, "The presentation doesn't contain any animations."
         super().tear_down(*args, **kwargs)
 
+    # executed single time once scene has been defined
     def render(self, *args, **kwargs):
         # don't delete any intermediate files
         max_files_cached = manim.config.max_files_cached
-        # render one more video file
         super().render(*args, **kwargs)
         manim.config.max_files_cached = max_files_cached
 
@@ -116,3 +118,5 @@ class Presentation(manim.Scene):
                 "animations": animations,
                 "slides": [slide.get_dict() for slide in self.slides],
             }, file)
+
+        # copy and configure web site over

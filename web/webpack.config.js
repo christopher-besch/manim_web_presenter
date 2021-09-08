@@ -24,15 +24,15 @@ module.exports = (env) => {
         },
         output: {
             // tell dev server where to serve code in memory from
-            publicPath: "./out",
+            publicPath: "../manim_web_presenter/web",
             // template based on keys in entry
             filename: "[name].js",
             // need absolute path
-            path: path.resolve(__dirname, "./out"),
+            path: path.resolve(__dirname, "../manim_web_presenter/web"),
         },
         devServer: {
             publicPath: "/",
-            contentBase: "./out",
+            contentBase: "../manim_web_presenter/web",
             hot: true,
         },
     };
