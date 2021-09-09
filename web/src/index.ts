@@ -1,3 +1,5 @@
+import "./index.css";
+
 let manim_web_controls: Window | null;
 
 // download file and parse json

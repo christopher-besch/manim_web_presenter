@@ -1,3 +1,5 @@
+const html_webpack_plugin = require("html-webpack-plugin");
+const inline_chunk_html_plugin = require("react-dev-utils/InlineChunkHtmlPlugin");
 const path = require("path");
 
 module.exports = (env) => {
@@ -17,16 +19,26 @@ module.exports = (env) => {
                 // use ts-loader to compile
                 use: "ts-loader",
                 include: [path.resolve(__dirname, "src")],
+            }, {
+                // when test passed
+                test: /\.css$/,
+                // use css-loader to compile
+                use: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader"
+                }],
+                include: [path.resolve(__dirname, "src")],
             }],
         },
         resolve: {
-            extensions: [".ts", ".js"],
+            extensions: [".ts", ".js", ".css"],
         },
         output: {
             // tell dev server where to serve code in memory from
             publicPath: "../manim_web_presenter/web",
             // template based on keys in entry
-            filename: "[name].js",
+            filename: "tmp/[name].js",
             // need absolute path
             path: path.resolve(__dirname, "../manim_web_presenter/web"),
         },
@@ -35,5 +47,13 @@ module.exports = (env) => {
             contentBase: "../manim_web_presenter/web",
             hot: true,
         },
+        plugins: [
+            new html_webpack_plugin({
+                template: "./src/index.html",
+                filename: "./index.html",
+                inject: true,
+            }),
+            new inline_chunk_html_plugin(html_webpack_plugin, [/index/]),
+        ]
     };
 };
