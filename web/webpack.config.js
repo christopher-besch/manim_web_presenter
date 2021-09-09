@@ -23,13 +23,11 @@ module.exports = (env) => {
                 // when test passed
                 test: /\.css$/,
                 // use css-loader to compile
-                use: [
-                    {
-                        loader: "style-loader"
-                    }, {
-                        loader: "css-loader"
-                    }
-                ],
+                use: [{
+                    loader: "style-loader"
+                }, {
+                    loader: "css-loader"
+                }],
                 include: [path.resolve(__dirname, "src")],
             }],
         },
