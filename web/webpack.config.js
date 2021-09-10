@@ -11,6 +11,7 @@ module.exports = (env) => {
         // only entry file, include any imported files
         entry: {
             index: "./src/index.ts",
+            web_controls: "./src/web_controls.ts",
         },
         module: {
             rules: [{
@@ -52,8 +53,21 @@ module.exports = (env) => {
                 template: "./src/index.html",
                 filename: "./index.html",
                 inject: true,
+                chunks: ["index"],
             }),
-            new inline_chunk_html_plugin(html_webpack_plugin, [/index/]),
+            new html_webpack_plugin({
+                template: "./src/web_controls.html",
+                filename: "./web_controls.html",
+                inject: true,
+                chunks: ["web_controls"],
+            }),
+            new html_webpack_plugin({
+                template: "./src/fallback.html",
+                filename: "./fallback.html",
+                inject: true,
+                chunks: [],
+            }),
+            new inline_chunk_html_plugin(html_webpack_plugin, [/index/, /web_controls/]),
         ]
     };
 };

@@ -1,0 +1,50 @@
+body {
+    margin: 0px;
+    background-color: black;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+}
+
+    body div {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+    }
+
+div.side-bar {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    width: 180px;
+}
+
+    div.side-bar div.timeline {
+        display: flex;
+        flex-grow: 1;
+    }
+
+    div.side-bar div.time-spent {
+        display: flex;
+        flex-grow: 0;
+        color: white;
+        justify-content: right;
+    }
+
+div.main {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+    div.main div.playback {
+        display: flex;
+        flex-grow: 1;
+    }
+
+    div.main div.controls {
+        display: flex;
+        flex-grow: 0;
+        justify-content: center;
+        height: 180px;
+    }
