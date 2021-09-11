@@ -1,6 +1,6 @@
 import "./index.css";
 
-let manim_web_controls: Window | null;
+let popup_video_viewer: Window | null;
 
 // download file and parse json
 function get_json(url: string, callback: { (response: any, success: boolean): void; }): void {
@@ -21,14 +21,14 @@ function get_json(url: string, callback: { (response: any, success: boolean): vo
     request.send();
 }
 
-// open manim web controls window
-function open_manim_web_controls(): boolean {
-    // if the manim web controls window is not opened, then open a popup window
-    if (manim_web_controls == null || manim_web_controls.closed) {
-        manim_web_controls = window.open("/fallback.html", "Manim Web Controls", "resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no");
-        return manim_web_controls != null;
+// open popup video viewer window
+function open_popup_video_viewer(): boolean {
+    // if the popup video viewer window is not opened, then open a new popup window
+    if (popup_video_viewer == null || popup_video_viewer.closed) {
+        popup_video_viewer = window.open("/video_viewer.html", "Manim Video Viewer", "resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no");
+        return popup_video_viewer != null;
     } else {
-        manim_web_controls.focus();
+        popup_video_viewer.focus();
         return true;
     }
 }

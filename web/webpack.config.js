@@ -11,7 +11,7 @@ module.exports = (env) => {
         // only entry file, include any imported files
         entry: {
             index: "./src/index.ts",
-            web_controls: "./src/web_controls.ts",
+            video_viewer: "./src/video_viewer.ts",
         },
         module: {
             rules: [{
@@ -56,10 +56,10 @@ module.exports = (env) => {
                 chunks: ["index"],
             }),
             new html_webpack_plugin({
-                template: "./src/web_controls.html",
-                filename: "./web_controls.html",
+                template: "./src/video_viewer.html",
+                filename: "./video_viewer.html",
                 inject: true,
-                chunks: ["web_controls"],
+                chunks: ["video_viewer"],
             }),
             new html_webpack_plugin({
                 template: "./src/fallback.html",
@@ -67,7 +67,7 @@ module.exports = (env) => {
                 inject: true,
                 chunks: [],
             }),
-            new inline_chunk_html_plugin(html_webpack_plugin, [/index/, /web_controls/]),
+            new inline_chunk_html_plugin(html_webpack_plugin, [/index/, /video_viewer/]),
         ]
     };
 };
