@@ -79,20 +79,17 @@ class RawPresentation:
         self.slides: List[Slide] = []
         self.next_animation = 0
 
-        # # keep old files in debug
-        # if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
-        #     os.mkdir(GLOBAL_OUTPUT_FOLDER)
-
-        # normally delete recreate folder
-        if os.path.exists(GLOBAL_OUTPUT_FOLDER):
-            shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
-        os.mkdir(GLOBAL_OUTPUT_FOLDER)
+        # keep other presentations
+        if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
+            os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
         slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
         # contain everything required to play this presentation including video files
-        if not os.path.exists(self.output_folder):
-            os.mkdir(self.output_folder)
+        if os.path.exists(self.output_folder):
+            shutil.rmtree(self.output_folder)
+        os.mkdir(self.output_folder)
+
         # stores intel about how to present slides
         self.index_file = os.path.join(self.output_folder, "index.json")
 
