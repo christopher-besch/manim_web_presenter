@@ -140,8 +140,7 @@ presentation/
 # webpack files
 node_modules/
 package-lock.json
-manim_web_presenter/web/index.html
-manim_web_presenter/web/tmp/
+manim_web_presenter/web/
 # preprocessed python files
 manim_web_presenter/wrapper_classes.py
 

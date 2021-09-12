@@ -79,21 +79,17 @@ class RawPresentation:
         self.slides: List[Slide] = []
         self.next_animation = 0
 
-        if __debug__:
-            # keep old files in debug
-            if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
-                os.mkdir(GLOBAL_OUTPUT_FOLDER)
-        else:
-            # normally delete recreate folder
-            if os.path.exists(GLOBAL_OUTPUT_FOLDER):
-                shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
+        # keep other presentations
+        if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
             os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
         slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
         # contain everything required to play this presentation including video files
-        if not os.path.exists(self.output_folder):
-            os.mkdir(self.output_folder)
+        if os.path.exists(self.output_folder):
+            shutil.rmtree(self.output_folder)
+        os.mkdir(self.output_folder)
+
         # stores intel about how to present slides
         self.index_file = os.path.join(self.output_folder, "index.json")
 
@@ -129,11 +125,17 @@ class RawPresentation:
     def copy_animations(self) -> List[str]:
         animations = []
         # let's tinker with the very fabric of manim's reality
-        for src_file in self.owner.renderer.file_writer.partial_movie_files:
+        for idx, src_file in enumerate(self.owner.renderer.file_writer.partial_movie_files):
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-            shutil.copyfile(src_file, dst_file)
+
+            # required by web presenter front end
+            manim.logger.info(f"Converting animation #{idx}...")
+            if os.system(f"ffmpeg -v {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
+                raise RuntimeError(f"ffmpeg failed to encode animation #{idx}")
+
             animations.append(os.path.basename(dst_file))
+
         return animations
 
     def copy_movie_file(self):
@@ -161,7 +163,8 @@ class RawPresentation:
         # copy and configure web site over
         web_folder = os.path.join(FILE_DIR_PATH, "web")
         web_files = [
-            "index.html"
+            "index.html",
+            "video_viewer.html"
         ]
         for file in web_files:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
@@ -176,7 +179,7 @@ class Inheritor:
     def __init__(self, class_):
         self.manim_name = class_.__name__
         if (not self.manim_name.endswith("Scene")):
-            print(f"Warning: the class '{self.manim_name}' inherits from manim.Scene but doesn't end with 'Scene'; Please open an issue of GitHub. Thank You!")
+            manim.logger.warning(f"Warning: the class '{self.manim_name}' inherits from manim.Scene but doesn't end with 'Scene'; Please open an issue of GitHub. Thank You!")
             self.presenter_name = f"{self.manim_name}_"
         else:
             self.presenter_name = self.manim_name.replace("Scene", "Presentation")
