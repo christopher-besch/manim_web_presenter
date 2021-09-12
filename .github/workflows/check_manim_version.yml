@@ -1,0 +1,26 @@
+# from https://stackoverflow.com/questions/58465057/trigger-a-github-action-when-another-repository-creates-a-new-release
+name: Get latest release version
+on:
+  schedule:
+    - cron:  '0 10 * * *'
+jobs:
+  get-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REPO_SCOPED_TOKEN }}
+      - name: Fetch release version
+        run: |
+          curl -sL https://api.github.com/repos/ManimCommunity/manim/releases/latest | \
+          jq -r ".tag_name" > release_versions/manim_ce_latest.txt
+      - name: Check for modified files
+        id: git-check
+        run: echo ::set-output name=modified::$([ -z "`git status --porcelain`" ] && echo "false" || echo "true")
+      - name: Commit latest release version
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+          git config --global user.name 'Manim CE Version Checker'
+          git config --global user.email 'main.version.checker@users.noreply.github.com'
+          git commit -am "New Manim CE release version"
+          git push
