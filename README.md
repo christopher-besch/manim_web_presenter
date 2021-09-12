@@ -18,5 +18,5 @@ Web Presentation using Manim
 
 ### Use
 
-- Run `manim example.py` in project root
+- Run `manim -ql example.py` in project root (or `python3 -O -m manim -ql example.py` to enable debug mode)
 - Start local server in `presentation/Test`: `python3 -m http.server`
