@@ -30,79 +30,60 @@ class LongTest(Presentation):
         self.next_normal_slide()
         self.play(GrowFromCenter(circle))
 
-        self.next_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
         self.play(dot.animate.move_to(ORIGIN))
 
         self.play(dot.animate.move_to(RIGHT*3))
 
-        self.next_complete_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         self.play(dot.animate.move_to(ORIGIN))
 
-        self.next_normal_slide()
         self.play(GrowFromCenter(circle))
 
-        self.next_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
         self.play(dot.animate.move_to(ORIGIN))
 
         self.play(dot.animate.move_to(RIGHT*3))
 
-        self.next_complete_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         self.play(dot.animate.move_to(ORIGIN))
 
-        self.next_normal_slide()
         self.play(GrowFromCenter(circle))
 
-        self.next_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
         self.play(dot.animate.move_to(ORIGIN))
 
         self.play(dot.animate.move_to(RIGHT*3))
 
-        self.next_complete_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         self.play(dot.animate.move_to(ORIGIN))
 
-        self.next_normal_slide()
         self.play(GrowFromCenter(circle))
 
-        self.next_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
         self.play(dot.animate.move_to(ORIGIN))
 
         self.play(dot.animate.move_to(RIGHT*3))
 
-        self.next_complete_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         self.play(dot.animate.move_to(ORIGIN))
 
-        self.next_normal_slide()
         self.play(GrowFromCenter(circle))
 
-        self.next_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
         self.play(dot.animate.move_to(ORIGIN))
 
         self.play(dot.animate.move_to(RIGHT*3))
 
-        self.next_complete_loop_slide()
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         self.play(dot.animate.move_to(ORIGIN))
