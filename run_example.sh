@@ -4,9 +4,9 @@ set -euo pipefail
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 cd "$SCRIPTPATH/web/"
 
-echo "|---------------|"
+echo ".---------------."
 echo "| Build website |"
-echo "|---------------|"
+echo "'---------------'"
 build_mode="build_release"
 build_mode_p="Release"
 
@@ -17,17 +17,17 @@ fi
 echo "> Build Mode: $build_mode_p"
 
 npm run "$build_mode"
-echo "|----------------------|"
+echo ".----------------------."
 echo "|   Finished building  |"
 echo "|                      |"
 echo "| Rendering with manim |"
-echo "|----------------------|"
+echo "'----------------------'"
 cd "$SCRIPTPATH"
 manim example.py
-echo "|-------------------------------|"
+echo ".-------------------------------."
 echo "| Finished rendering with manim |"
 echo "|                               |"
 echo "|        Starting server        |"
-echo "|-------------------------------|"
+echo "'-------------------------------'"
 cd "$SCRIPTPATH/presentation/Test/"
 python3 -m http.server
