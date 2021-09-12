@@ -56,13 +56,13 @@ class AnimationInfo {
 }
 
 class SlideInfo {
-    slides: Slides;
+    slides: Presentation;
     name: string;
     type: SlideType;
     animations: AnimationInfo[];
     media_source: MediaSource;
 
-    constructor(json_object: any, animations_array: any, slides: Slides) {
+    constructor(json_object: any, animations_array: any, slides: Presentation) {
         this.slides = slides;
         this.name = json_object.name;
         this.type = get_slide_type_from_string(json_object.slide_type);
@@ -144,7 +144,7 @@ class SlideInfo {
     }
 }
 
-class Slides {
+class Presentation {
     video_element: HTMLVideoElement | null;
     slides: SlideInfo[];
     current_slide: number;
@@ -232,7 +232,7 @@ class Slides {
         };
     }
 
-    load_slides(on_loaded: (self: Slides) => void, on_failed: (self: Slides) => void): void {
+    load_slides(on_loaded: (self: Presentation) => void, on_failed: (self: Presentation) => void): void {
         get_json("index.json", (response, success) => {
             if (!success) {
                 console.error(response);
@@ -279,7 +279,7 @@ class Slides {
     }
 }
 
-let slides: Slides = new Slides();
+let slides: Presentation = new Presentation();
 
 let popup_video_viewer: Window | null;
 
@@ -315,12 +315,12 @@ function open_popup_video_viewer(): boolean {
 }
 
 document.body.onload = () => {
-    slides.load_slides((self: Slides) => {
+    slides.load_slides((self: Presentation) => {
         let videoElement = document.querySelector("div.main div.playback video");
         if (videoElement != null)
             self.set_video_element(videoElement as HTMLVideoElement);
         self.play_slide(0);
-    }, (self: Slides) => {
+    }, (self: Presentation) => {
         console.error("Slides could not be loaded");
     });
 }
