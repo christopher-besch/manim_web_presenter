@@ -10,10 +10,13 @@ echo "'---------------'"
 build_mode="build_release"
 build_mode_p="Release"
 
-if [ "$1" == "debug" ]; then
-	build_mode="build_debug"
-	build_mode_p="Debug"
+if test "$#" -eq 1; then
+    if [ "$1" == "debug" ]; then
+        build_mode="build_debug"
+        build_mode_p="Debug"
+    fi
 fi
+
 echo "> Build Mode: $build_mode_p"
 
 npm run "$build_mode"
