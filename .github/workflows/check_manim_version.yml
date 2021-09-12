@@ -1,5 +1,5 @@
 # from https://stackoverflow.com/questions/58465057/trigger-a-github-action-when-another-repository-creates-a-new-release
-name: Get latest release version
+name: Check Latest Manim CE Version
 on:
   schedule:
     - cron:  '0 10 * * *'
