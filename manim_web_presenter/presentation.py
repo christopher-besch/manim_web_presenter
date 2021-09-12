@@ -83,11 +83,13 @@ class RawPresentation:
             # keep old files in debug
             if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
                 os.mkdir(GLOBAL_OUTPUT_FOLDER)
+            print("debug")
         else:
             # normally delete recreate folder
             if os.path.exists(GLOBAL_OUTPUT_FOLDER):
                 shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
             os.mkdir(GLOBAL_OUTPUT_FOLDER)
+            print("release")
 
         slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
@@ -129,10 +131,12 @@ class RawPresentation:
     def copy_animations(self) -> List[str]:
         animations = []
         # let's tinker with the very fabric of manim's reality
-        for src_file in self.owner.renderer.file_writer.partial_movie_files:
+        for idx, src_file in enumerate(self.owner.renderer.file_writer.partial_movie_files):
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-            shutil.copyfile(src_file, dst_file)
+            print(f"Converting animation #{idx}...")
+            if os.system(f"ffmpeg -v 0 -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
+                raise RuntimeError("ffmpeg failed to encode animation #{idx}")
             animations.append(os.path.basename(dst_file))
         return animations
 
