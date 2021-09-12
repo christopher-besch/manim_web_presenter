@@ -19,6 +19,18 @@ def write_template(in_file, out_file, **variables):
         file.write(out)
 
 
+def get_inheritors(class_):
+    subclasses = {class_}
+    q = [class_]
+    while q:
+        parent = q.pop()
+        for child in parent.__subclasses__():
+            if child not in subclasses:
+                subclasses.add(child)
+                q.append(child)
+    return subclasses
+
+
 # represent
 class Slide:
     def __init__(self, slide_type: str, name: str, first_animation: int):
@@ -45,33 +57,35 @@ class Slide:
         return f"<Slide '{self.name}' from {self.first_animation} to {self.after_last_animation}>"
 
 
-# represent entire presentation replacing a single manim scene
-class Presentation(manim.Scene):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# contain all presentation functionality
+# required to beat inheritance hell
+# if you have a better idea of how to do this, please open an issue on github
+class RawPresentation:
+    def __init__(self, owner, parent, *args, **kwargs):
+        self.owner = owner
+        self.parent = parent
+        parent.__init__(*args, **kwargs)
 
         self.slides: List[Slide] = []
         self.next_animation = 0
 
-        # create or clear global output folder
         if os.path.exists(GLOBAL_OUTPUT_FOLDER):
             shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
         os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
-        slide_name = type(self).__name__
+        slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
-        # create output folder for specific presentation
         # contain everything required to play this presentation including video files
         if not os.path.exists(self.output_folder):
             os.mkdir(self.output_folder)
         # stores intel about how to present slides
-        self.intel_file = os.path.join(self.output_folder, "index.json")
+        self.index_file = os.path.join(self.output_folder, "index.json")
 
-        # first slide can be replaced with a loop <- gets deleted when immediately creating a new slide
-        self.next_normal_slide()
+        # first slide can be replaced with a loop <- immediately gets deleted when creating a new slide
+        self.__next_slide("normal", None)
 
     def play(self, *args, **kwargs):
-        super().play(*args, **kwargs)
+        self.parent.play(*args, **kwargs)
         # exclusive -> store index of not yet defined animation
         self.next_animation += 1
         self.slides[-1].after_last_animation = self.next_animation
@@ -89,41 +103,25 @@ class Presentation(manim.Scene):
                                  name,
                                  self.next_animation))
 
-    # end last slide and start new (first slide has been created automatically)
-    def next_normal_slide(self, name: Optional[str] = None):
-        self.__next_slide("normal", name)
-
-    # end last slide and start new loop slide
-    def next_loop_slide(self, name: Optional[str] = None):
-        self.__next_slide("loop", name)
-
-    # end last slide and start new loop slide
-    # loop finishes first before going to next slide
-    def next_complete_loop_slide(self, name: Optional[str] = None):
-        self.__next_slide("complete_loop", name)
-
-    # after slides have been defined but before render to files
-    def tear_down(self, *args, **kwargs):
-        self.__finish_last_slide()
-        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
-        super().tear_down(*args, **kwargs)
-
     # executed single time once scene has been defined
     def render(self, *args, **kwargs):
+        self.__finish_last_slide()
+        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
+
         # don't delete any intermediate files
         max_files_cached = manim.config.max_files_cached
-        super().render(*args, **kwargs)
+        self.parent.render(*args, **kwargs)
         manim.config.max_files_cached = max_files_cached
 
         # copy intermediate video files
         animations = []
-        for src_file in self.renderer.file_writer.partial_movie_files:
+        for src_file in self.owner.renderer.file_writer.partial_movie_files:
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
             shutil.copyfile(src_file, dst_file)
             animations.append(os.path.basename(dst_file))
 
-        with open(self.intel_file, "w") as file:
+        with open(self.index_file, "w") as file:
             json.dump({
                 "animations": animations,
                 "slides": [slide.get_dict() for slide in self.slides],
@@ -137,3 +135,21 @@ class Presentation(manim.Scene):
         for file in web_files:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
         write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), animations=animations, slides=self.slides)
+
+#####################
+# custom templating #
+#####################
+
+
+class Inheritor:
+    def __init__(self, class_):
+        self.manim_name = class_.__name__
+        if (not self.manim_name.endswith("Scene")):
+            print(f"Warning: the class '{self.manim_name}' inherits from manim.Scene but doesn't end with 'Scene'; Please open an issue of GitHub. Thank You!")
+            self.presenter_name = f"{self.manim_name}_"
+        else:
+            self.presenter_name = self.manim_name.replace("Scene", "Presentation")
+
+
+inheritors = [Inheritor(inheritor) for inheritor in get_inheritors(manim.Scene)]
+write_template(os.path.join(FILE_DIR_PATH, "wrapper_classes_template.py"), os.path.join(FILE_DIR_PATH, "wrapper_classes.py"))
