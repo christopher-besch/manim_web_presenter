@@ -1,0 +1,59 @@
+name: Linux Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "Debug",
+            artifact: "linux_debug.tar.xz",
+            build_type: "build_debug"
+          }
+          - {
+            name: "Release",
+            artifact: "linux_release.tar.xz",
+            build_type: "build_release"
+          }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+            submodules: recursive
+
+      - name: Update environment
+        run: |
+          sudo apt install libcairo2-dev libpango1.0-dev ffmpeg python3-pip nodejs npm
+          pip3 install -r requirements.txt
+          cd ${{github.workspace}}/web
+          npm install
+          cd ${{github.workspace}}
+
+      - name: Build Web
+        run: |
+          cd ${{github.workspace}}/web
+          npm run ${{matrix.config.build_type}}
+          cd ${{github.workspace}}
+
+      - test: Test
+        run: |
+          manim example.py --write_all
+
+      - name: Prepare Upload
+        run: |
+          tar cfz ${{matrix.config.artifact}} presentation
+
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          path: ${{matrix.config.artifact}}
+          name: ${{matrix.config.artifact}}
+
