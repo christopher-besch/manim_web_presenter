@@ -17,12 +17,14 @@ jobs:
           - {
             name: "Debug",
             artifact: "linux_debug.tar.xz",
-            build_type: "build_debug"
+            build_type: "build_debug",
+            quality: "ql"
           }
           - {
             name: "Release",
             artifact: "linux_release.tar.xz",
-            build_type: "build_release"
+            build_type: "build_release",
+            quality: "qh"
           }
     steps:
       - name: Checkout
@@ -46,7 +48,7 @@ jobs:
 
       - name: Test
         run: |
-          manim example.py --write_all
+          manim example.py "-${{matrix.config.quality}}" --write_all
 
       - name: Prepare Upload
         run: |
