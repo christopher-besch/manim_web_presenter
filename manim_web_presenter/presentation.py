@@ -125,6 +125,23 @@ class RawPresentation:
         assert len(self.slides) != 0, "The presentation doesn't contain any animations."
         self.parent.tear_down(*args, **kwargs)
 
+    # copy intermediate video files
+    def copy_animations(self) -> List[str]:
+        animations = []
+        # let's tinker with the very fabric of manim's reality
+        for src_file in self.owner.renderer.file_writer.partial_movie_files:
+            assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
+            dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
+            shutil.copyfile(src_file, dst_file)
+            animations.append(os.path.basename(dst_file))
+        return animations
+
+    def copy_movie_file(self):
+        movie_file = self.owner.renderer.file_writer.movie_file_path
+        assert movie_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
+        dst_file = os.path.join(self.output_folder, "movie.mp4")
+        shutil.copyfile(movie_file, dst_file)
+
     # executed single time once scene has been defined
     def render(self, *args, **kwargs):
         # don't delete any intermediate files
@@ -132,13 +149,8 @@ class RawPresentation:
         self.parent.render(*args, **kwargs)
         manim.config.max_files_cached = max_files_cached
 
-        # copy intermediate video files
-        animations = []
-        for src_file in self.owner.renderer.file_writer.partial_movie_files:
-            assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
-            dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-            shutil.copyfile(src_file, dst_file)
-            animations.append(os.path.basename(dst_file))
+        animations = self.copy_animations()
+        self.copy_movie_file()
 
         with open(self.index_file, "w") as file:
             json.dump({
@@ -170,5 +182,6 @@ class Inheritor:
             self.presenter_name = self.manim_name.replace("Scene", "Presentation")
 
 
-inheritors = [Inheritor(inheritor) for inheritor in get_inheritors(manim.Scene)]
-write_python_template(os.path.join(FILE_DIR_PATH, "wrapper_classes_template.py"), os.path.join(FILE_DIR_PATH, "wrapper_classes.py"), inheritors=inheritors)
+def create_wrappers():
+    inheritors = [Inheritor(inheritor) for inheritor in get_inheritors(manim.Scene)]
+    write_python_template(os.path.join(FILE_DIR_PATH, "wrapper_classes_template.py"), os.path.join(FILE_DIR_PATH, "wrapper_classes.py"), inheritors=inheritors)
