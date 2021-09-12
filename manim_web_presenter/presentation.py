@@ -11,11 +11,21 @@ GLOBAL_OUTPUT_FOLDER = "presentation"
 
 
 # copy file with jinja2 templating
-def write_template(in_file, out_file, **variables):
+def write_template(in_file: str, out_file: str, **kwargs):
     with open(in_file, "r", encoding="utf-8") as file:
         template = Template(file.read(), undefined=StrictUndefined)
-    out = template.render(**variables)
+    out = template.render(**kwargs)
     with open(out_file, "w", encoding="utf-8") as file:
+        file.write(out)
+
+
+# intended for writing templated python files
+def write_python_template(in_file: str, out_file: str, **kwargs):
+    with open(in_file, "r", encoding="utf-8") as file:
+        template = Template(file.read(), undefined=StrictUndefined)
+    out = template.render(**kwargs)
+    with open(out_file, "w", encoding="utf-8") as file:
+        file.write("# This file has been automatically created with jinja2, any edits in this file will be overwritten!\n")
         file.write(out)
 
 
@@ -69,9 +79,15 @@ class RawPresentation:
         self.slides: List[Slide] = []
         self.next_animation = 0
 
-        if os.path.exists(GLOBAL_OUTPUT_FOLDER):
-            shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
-        os.mkdir(GLOBAL_OUTPUT_FOLDER)
+        if __debug__:
+            # keep old files in debug
+            if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
+                os.mkdir(GLOBAL_OUTPUT_FOLDER)
+        else:
+            # normally delete recreate folder
+            if os.path.exists(GLOBAL_OUTPUT_FOLDER):
+                shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
+            os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
         slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
@@ -82,7 +98,7 @@ class RawPresentation:
         self.index_file = os.path.join(self.output_folder, "index.json")
 
         # first slide can be replaced with a loop <- immediately gets deleted when creating a new slide
-        self.__next_slide("normal", None)
+        self.next_slide("normal", None)
 
     def play(self, *args, **kwargs):
         self.parent.play(*args, **kwargs)
@@ -90,24 +106,27 @@ class RawPresentation:
         self.next_animation += 1
         self.slides[-1].after_last_animation = self.next_animation
 
-    def __finish_last_slide(self):
+    def finish_last_slide(self):
         # empty slides are confusing and will be overwritten
         if len(self.slides) != 0 and self.slides[-1].empty():
             self.slides.pop()
 
-    def __next_slide(self, slide_type: str, name: Optional[str]):
+    def next_slide(self, slide_type: str, name: Optional[str]):
         if name is None:
             name = f"Slide ({slide_type}) #{len(self.slides)}"
-        self.__finish_last_slide()
+        self.finish_last_slide()
         self.slides.append(Slide(slide_type,
                                  name,
                                  self.next_animation))
 
+    # after slides have been defined but before render to files
+    def tear_down(self, *args, **kwargs):
+        self.finish_last_slide()
+        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
+        self.parent.tear_down(*args, **kwargs)
+
     # executed single time once scene has been defined
     def render(self, *args, **kwargs):
-        self.__finish_last_slide()
-        assert len(self.slides) != 0, "The presentation doesn't contain any animations."
-
         # don't delete any intermediate files
         max_files_cached = manim.config.max_files_cached
         self.parent.render(*args, **kwargs)
@@ -136,11 +155,11 @@ class RawPresentation:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
         write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), animations=animations, slides=self.slides)
 
+
 #####################
 # custom templating #
 #####################
-
-
+# manim Scene class or class inheriting from Scene
 class Inheritor:
     def __init__(self, class_):
         self.manim_name = class_.__name__
@@ -152,4 +171,4 @@ class Inheritor:
 
 
 inheritors = [Inheritor(inheritor) for inheritor in get_inheritors(manim.Scene)]
-write_template(os.path.join(FILE_DIR_PATH, "wrapper_classes_template.py"), os.path.join(FILE_DIR_PATH, "wrapper_classes.py"))
+write_python_template(os.path.join(FILE_DIR_PATH, "wrapper_classes_template.py"), os.path.join(FILE_DIR_PATH, "wrapper_classes.py"), inheritors=inheritors)
