@@ -1,22 +1,5 @@
 import "./index.css";
 
-class MultiDelegate<T, A extends any[]> {
-    delegates: ((this: T, ...args: A) => void)[];
-
-    constructor() {
-        this.delegates = [];
-    }
-
-    add_delegate(delegate: ((this: T, ...args: A) => void)): void {
-        this.delegates.push(delegate);
-    }
-
-    invoke(thisArg: T, ...args: A): void {
-        for (let i: number = 0, len: number = this.delegates.length; i < len; ++i)
-            this.delegates[i].call(thisArg, ...args);
-    }
-}
-
 enum SlideType {
     NORMAL,
     LOOP,
@@ -89,12 +72,8 @@ class SlideInfo {
         for (let i: number = json_object.first_animation; i < json_object.after_last_animation; ++i)
             this.animations.push(new AnimationInfo(animations_array[i], this));
 
-        this.media_source.onsourceended = (ev) => {
-            console.log("MediaSource ended");
-            console.log(ev);
-        };
-
         this.media_source.onsourceopen = (_) => {
+            // Check if the MIME codec is supported.
             let mime_codec = "video/mp4; codecs=\"avc1.64002A\"";
             if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
                 console.error("MediaSource or mime codec not supported");
@@ -105,29 +84,30 @@ class SlideInfo {
             let source_buffers: SourceBuffer[] = [];
             let loaded_source_buffers: number = 0;
 
-            console.log(this.media_source);
-
+            // Add a source buffer to the media source for every animation of this slide.
             for (let i: number = 0, len: number = this.animations.length; i < len; ++i) {
-                source_buffers.push(this.media_source.addSourceBuffer(mime_codec));
-                source_buffers[i].onupdateend = (_) => {
-                    console.log(this.media_source);
-                    console.log(loaded_source_buffers);
-                    /*if (++loaded_source_buffers == source_buffers.length)
-                        this.media_source.endOfStream();*/
-                    console.log(loaded_source_buffers);
+                let source_buffer = this.media_source.addSourceBuffer(mime_codec);
+                source_buffer.onupdate = (_) => {
+                    if (++loaded_source_buffers == source_buffers.length)
+                        this.media_source.endOfStream();
                 };
+                source_buffer.onerror = (ev: Event) => {
+                    console.log("Failed to append buffer to source buffer:");
+                    console.log(ev.target);
+                };
+                source_buffer.onabort = (ev: Event) => {
+                    console.log("Aborted source buffer:");
+                    console.log(ev.target);
+                };
+                source_buffers.push(source_buffer);
             }
 
-            console.log(source_buffers);
-            console.log(this.media_source);
-
+            // Load every animation and append the media buffer of the animation to the respective source buffer.
             for (let i: number = 0, len: number = this.animations.length; i < len; ++i) {
                 this.animations[i].load_animation((self: AnimationInfo) => {
                     if (self.media_buffer == null) {
-                        console.log("Aborted media source");
                         source_buffers[i].abort();
                     } else {
-                        console.log("Appended media buffer");
                         source_buffers[i].appendBuffer(self.media_buffer);
                     }
                 }, (self: AnimationInfo) => {
@@ -160,20 +140,16 @@ class Slides {
     slides: SlideInfo[];
     current_slide: number;
     next_slide: number;
+    previous_slide: number;
     loaded: boolean;
-    on_load_info: MultiDelegate<Slides, []>;
-    on_animation_done: MultiDelegate<Slides, []>;
-    on_slide_done: MultiDelegate<Slides, []>;
 
     constructor() {
         this.video_element = null;
         this.slides = [];
         this.current_slide = -1;
         this.next_slide = 0;
+        this.previous_slide = 0;
         this.loaded = false;
-        this.on_load_info = new MultiDelegate<Slides, []>();
-        this.on_animation_done = new MultiDelegate<Slides, []>();
-        this.on_slide_done = new MultiDelegate<Slides, []>();
     }
 
     update_video(): void {
@@ -184,73 +160,65 @@ class Slides {
         for (let i: number = 0, len: number = this.current_slide - 2; i < len; ++i)
             this.slides[i].unload_animations();
 
-        let slide = this.slides[this.current_slide];
-        if (this.video_element != null) {
-            if (this.video_element.src.length != 0)
-                URL.revokeObjectURL(this.video_element.src);
-            this.video_element.src = URL.createObjectURL(slide.media_source);
+        if (this.current_slide < 0 || this.current_slide >= this.slides.length) {
+            // If the current slide is non existant just set the video element to an empty video.
+            if (this.video_element != null) {
+                if (this.video_element.src.length != 0)
+                    URL.revokeObjectURL(this.video_element.src);
+                this.video_element.src = "";
+                this.video_element.currentTime = 0;
+                this.video_element.play();
+            }
+        } else if (this.current_slide != this.previous_slide) {
+            // If the current slide is different from the previous slide we have to change the video source to the new slide.
+            this.previous_slide = this.current_slide;
+            let slide = this.slides[this.current_slide];
+            if (this.video_element != null) {
+                // Revoke the Object URL of the video element if it exists.
+                // This has to be done because the pointer thingy isn't deleted automatically.
+                if (this.video_element.src.length != 0)
+                    URL.revokeObjectURL(this.video_element.src);
+                // Create a new Object URL of the slides media source.
+                this.video_element.src = URL.createObjectURL(slide.media_source);
+                this.video_element.currentTime = 0;
+                let promise = this.video_element.play();
+                if (promise !== undefined) {
+                    // If the video couldn't play just log the error message for debugging purposes.
+                    promise.catch((error) => {
+                        console.error(error);
+                    });
+                }
+            }
+        } else if (this.video_element != null) {
+            // If the current slide didn't change we only want to restart the video from the start.
             this.video_element.currentTime = 0;
             let promise = this.video_element.play();
             if (promise !== undefined) {
-                promise.then(() => {
-                    console.log("Playing slide \"" + slide.name + "\"");
-                }, (error) => {
+                promise.catch((error) => {
                     console.error(error);
                 });
             }
         }
-        /*let animation = slide.get_animation(this.current_animation);
-        if (animation != null) {
-            // Wait until the animation has been loaded and set it as the video to play.
-            animation.load_animation((self: AnimationInfo) => {
-                if (this.video_element != null) {
-                    if (this.video_element.src.length != 0)
-                        URL.revokeObjectURL(this.video_element.src);
-                    this.video_element.src = URL.createObjectURL(self.media_source);
-                    this.video_element.currentTime = 0;
-                    let promise = this.video_element.play();
-                    if (promise !== undefined) {
-                        promise.then(() => {
-                            if (animation != null)
-                                console.log("Playing animation \"" + animation.url + "\"");
-                        }, (error) => {
-                            console.error(error);
-                        });
-                    }
-                }
-            }, (self: AnimationInfo) => {
-                console.error("Animation \"" + self.url + "\" could not be loaded");
-            });
-        }*/
     }
 
     set_video_element(video_element: HTMLVideoElement): void {
         this.video_element = video_element;
 
-        /*this.video_element.onended = (ev: Event) => {
+        // Attach an event to when the video has ended and update the video accordingly.
+        this.video_element.onended = (ev: Event) => {
             let cur_slide = this.slides[this.current_slide];
-            if (this.current_animation == cur_slide.animations.length - 1) {
-                switch (cur_slide.type) {
-                    case SlideType.LOOP: // When the current slide is a loop type we just restart from the beginning.
-                        this.update_video();
-                        break;
-                    case SlideType.COMPLETE_LOOP: // When the current slide is a complete loop type and the next slide has changed, we go to that one from here.
-                        if (this.next_slide != this.current_slide) {
-                            this.current_slide = this.next_slide;
-                            this.current_animation = 0;
-                        }
-                        this.update_video();
-                        break;
-                }
-
-                this.on_slide_done.invoke(this);
-            } else {
-                // Increment animation and play that animation.
-                ++this.current_animation;
-                this.update_video();
-                this.on_animation_done.invoke(this);
+            switch (cur_slide.type) {
+                case SlideType.LOOP: // When the current slide is a loop type we just restart from the beginning.
+                    this.update_video();
+                    break;
+                case SlideType.COMPLETE_LOOP: // When the current slide is a complete loop type and the next slide has changed, we go to that one from here.
+                    if (this.next_slide != this.current_slide) {
+                        this.current_slide = this.next_slide;
+                    }
+                    this.update_video();
+                    break;
             }
-        };*/
+        };
     }
 
     load_slides(on_loaded: (self: Slides) => void, on_failed: (self: Slides) => void): void {
@@ -269,7 +237,6 @@ class Slides {
 
             // Once loading and constructing the infos is done inform others that it's done
             this.loaded = true;
-            this.on_load_info.invoke(this);
             on_loaded(this);
         });
     }
