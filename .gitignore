@@ -131,12 +131,16 @@ dmypy.json
 media/
 presentation/
 
-node_modules/
-package-lock.json
-manim_web_presenter/web/
-
 # Visual Studio
 .vs/
 *.sln
 *.vcxproj
 *.vcxproj.*
+
+# webpack files
+node_modules/
+package-lock.json
+manim_web_presenter/web/
+# preprocessed python files
+manim_web_presenter/wrapper_classes.py
+
