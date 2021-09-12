@@ -36,26 +36,37 @@ class AnimationInfo {
     slide: SlideInfo;
     url: string;
     media_buffer: BufferSource | null;
+    media_buffer_loading: boolean;
     media_buffer_loaded: boolean;
 
     constructor(url: string, slide: SlideInfo) {
         this.slide = slide;
         this.url = url;
         this.media_buffer = null;
+        this.media_buffer_loading = false;
         this.media_buffer_loaded = false;
     }
 
     load_animation(on_loaded: (self: AnimationInfo) => void, on_failed: (self: AnimationInfo) => void): void {
+        if (this.media_buffer_loading) {
+            while (!this.media_buffer_loaded)
+                ;
+            on_loaded(this);
+            return;
+        }
+
         if (this.media_buffer_loaded) {
             on_loaded(this);
             return;
         }
+        this.media_buffer_loading = true;
 
         let request = new XMLHttpRequest();
         request.responseType = "arraybuffer";
         request.onload = () => {
             this.media_buffer = request.response;
             this.media_buffer_loaded = true;
+            this.media_buffer_loading = false;
             on_loaded(this);
         };
         request.onerror = () => {
@@ -68,6 +79,7 @@ class AnimationInfo {
 
     unload_animation(): void {
         this.media_buffer = null;
+        this.media_buffer_loading = false;
         this.media_buffer_loaded = false;
     }
 }
@@ -111,8 +123,8 @@ class SlideInfo {
                 source_buffers[i].onupdateend = (_) => {
                     console.log(this.media_source);
                     console.log(loaded_source_buffers);
-                    if (++loaded_source_buffers == source_buffers.length)
-                        /*this.media_source.endOfStream();*/
+                    /*if (++loaded_source_buffers == source_buffers.length)
+                        this.media_source.endOfStream();*/
                     console.log(loaded_source_buffers);
                 };
             }
@@ -122,10 +134,13 @@ class SlideInfo {
 
             for (let i: number = 0, len: number = this.animations.length; i < len; ++i) {
                 this.animations[i].load_animation((self: AnimationInfo) => {
-                    if (self.media_buffer == null)
+                    if (self.media_buffer == null) {
+                        console.log("Aborted media source");
                         source_buffers[i].abort();
-                    else
+                    } else {
+                        console.log("Appended media buffer");
                         source_buffers[i].appendBuffer(self.media_buffer);
+                    }
                 }, (self: AnimationInfo) => {
                     source_buffers[i].abort();
                     console.error("Failed to load animation \"" + self.url + "\"");
