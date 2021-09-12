@@ -131,11 +131,14 @@ class RawPresentation:
         for idx, src_file in enumerate(self.owner.renderer.file_writer.partial_movie_files):
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-            animations.append(os.path.basename(dst_file))
 
+            # required by web presenter front end
             manim.logger.info(f"Converting animation #{idx}...")
             if os.system(f"ffmpeg -v {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
                 raise RuntimeError(f"ffmpeg failed to encode animation #{idx}")
+
+            animations.append(os.path.basename(dst_file))
+
         return animations
 
     def copy_movie_file(self):
