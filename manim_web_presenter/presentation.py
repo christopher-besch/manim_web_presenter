@@ -79,17 +79,14 @@ class RawPresentation:
         self.slides: List[Slide] = []
         self.next_animation = 0
 
-        if __debug__:
-            # keep old files in debug
-            if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
-                os.mkdir(GLOBAL_OUTPUT_FOLDER)
-            print("debug")
-        else:
-            # normally delete recreate folder
-            if os.path.exists(GLOBAL_OUTPUT_FOLDER):
-                shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
-            os.mkdir(GLOBAL_OUTPUT_FOLDER)
-            print("release")
+        # # keep old files in debug
+        # if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
+        #     os.mkdir(GLOBAL_OUTPUT_FOLDER)
+
+        # normally delete recreate folder
+        if os.path.exists(GLOBAL_OUTPUT_FOLDER):
+            shutil.rmtree(GLOBAL_OUTPUT_FOLDER)
+        os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
         slide_name = type(owner).__name__
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
@@ -134,10 +131,11 @@ class RawPresentation:
         for idx, src_file in enumerate(self.owner.renderer.file_writer.partial_movie_files):
             assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
             dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-            print(f"Converting animation #{idx}...")
-            if os.system(f"ffmpeg -v 0 -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
-                raise RuntimeError("ffmpeg failed to encode animation #{idx}")
             animations.append(os.path.basename(dst_file))
+
+            manim.logger.info(f"Converting animation #{idx}...")
+            if os.system(f"ffmpeg -v {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
+                raise RuntimeError(f"ffmpeg failed to encode animation #{idx}")
         return animations
 
     def copy_movie_file(self):
@@ -181,7 +179,7 @@ class Inheritor:
     def __init__(self, class_):
         self.manim_name = class_.__name__
         if (not self.manim_name.endswith("Scene")):
-            print(f"Warning: the class '{self.manim_name}' inherits from manim.Scene but doesn't end with 'Scene'; Please open an issue of GitHub. Thank You!")
+            manim.logger.warning(f"Warning: the class '{self.manim_name}' inherits from manim.Scene but doesn't end with 'Scene'; Please open an issue of GitHub. Thank You!")
             self.presenter_name = f"{self.manim_name}_"
         else:
             self.presenter_name = self.manim_name.replace("Scene", "Presentation")
