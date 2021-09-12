@@ -1,5 +1,8 @@
 # Manim Web Presenter
 
+[![Linux Build](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml/badge.svg?branch=main)](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml)
+[![License](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/christopher-besch/manim_web_presenter/blob/main/LICENSE)
+
 Web Presentation using Manim
 
 ### Installation
