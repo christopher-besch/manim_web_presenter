@@ -9,11 +9,13 @@ echo "| Build website |"
 echo "'---------------'"
 build_mode="build_release"
 build_mode_p="Release"
+manim_args=""
 
 if test "$#" -eq 1; then
     if [ "$1" == "debug" ]; then
         build_mode="build_debug"
         build_mode_p="Debug"
+        manim_args="-ql"
     fi
 fi
 
@@ -26,7 +28,7 @@ echo "|                      |"
 echo "| Rendering with manim |"
 echo "'----------------------'"
 cd "$SCRIPTPATH"
-manim example.py --write_all
+manim example.py --write_all $manim_args
 echo ".-------------------------------."
 echo "| Finished rendering with manim |"
 echo "|                               |"
