@@ -36,37 +36,26 @@ class AnimationInfo {
     slide: SlideInfo;
     url: string;
     media_buffer: BufferSource | null;
-    media_buffer_loading: boolean;
     media_buffer_loaded: boolean;
 
     constructor(url: string, slide: SlideInfo) {
         this.slide = slide;
         this.url = url;
         this.media_buffer = null;
-        this.media_buffer_loading = false;
         this.media_buffer_loaded = false;
     }
 
     load_animation(on_loaded: (self: AnimationInfo) => void, on_failed: (self: AnimationInfo) => void): void {
-        if (this.media_buffer_loading) {
-            while (!this.media_buffer_loaded)
-                ;
-            on_loaded(this);
-            return;
-        }
-
         if (this.media_buffer_loaded) {
             on_loaded(this);
             return;
         }
-        this.media_buffer_loading = true;
 
         let request = new XMLHttpRequest();
         request.responseType = "arraybuffer";
         request.onload = () => {
             this.media_buffer = request.response;
             this.media_buffer_loaded = true;
-            this.media_buffer_loading = false;
             on_loaded(this);
         };
         request.onerror = () => {
@@ -79,7 +68,6 @@ class AnimationInfo {
 
     unload_animation(): void {
         this.media_buffer = null;
-        this.media_buffer_loading = false;
         this.media_buffer_loaded = false;
     }
 }
@@ -101,8 +89,9 @@ class SlideInfo {
         for (let i: number = json_object.first_animation; i < json_object.after_last_animation; ++i)
             this.animations.push(new AnimationInfo(animations_array[i], this));
 
-        this.media_source.onsourceended = (_) => {
+        this.media_source.onsourceended = (ev) => {
             console.log("MediaSource ended");
+            console.log(ev);
         };
 
         this.media_source.onsourceopen = (_) => {
