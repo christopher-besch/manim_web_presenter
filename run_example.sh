@@ -26,11 +26,11 @@ echo "|                      |"
 echo "| Rendering with manim |"
 echo "'----------------------'"
 cd "$SCRIPTPATH"
-manim example.py
+manim example.py --write_all
 echo ".-------------------------------."
 echo "| Finished rendering with manim |"
 echo "|                               |"
 echo "|        Starting server        |"
 echo "'-------------------------------'"
-cd "$SCRIPTPATH/presentation/Test/"
+cd "$SCRIPTPATH/presentation/"
 python3 -m http.server

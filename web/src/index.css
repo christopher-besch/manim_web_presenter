@@ -47,6 +47,7 @@ div.main {
 
         div.main div.playback video {
             flex-grow: 1;
+            max-width: calc(100vw - 250px);
         }
 
     div.main div.controls {
