@@ -94,7 +94,7 @@ class SlideInfo {
         };
 
         this.media_source.onsourceopen = (_) => {
-            let mime_codec = "video/mp4";
+            let mime_codec = "video/mp4; codecs=\"avc1.64002A\"";
             if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
                 console.error("MediaSource or mime codec not supported");
                 this.media_source.endOfStream();
@@ -104,21 +104,21 @@ class SlideInfo {
             let source_buffers: SourceBuffer[] = [];
             let loaded_source_buffers: number = 0;
 
-            console.log(this.media_source.readyState);
+            console.log(this.media_source);
 
             for (let i: number = 0, len: number = this.animations.length; i < len; ++i) {
                 source_buffers.push(this.media_source.addSourceBuffer(mime_codec));
                 source_buffers[i].onupdateend = (_) => {
-                    console.log(this.media_source.readyState);
+                    console.log(this.media_source);
                     console.log(loaded_source_buffers);
                     if (++loaded_source_buffers == source_buffers.length)
-                        this.media_source.endOfStream();
+                        /*this.media_source.endOfStream();*/
                     console.log(loaded_source_buffers);
                 };
             }
 
             console.log(source_buffers);
-            console.log(this.media_source.readyState);
+            console.log(this.media_source);
 
             for (let i: number = 0, len: number = this.animations.length; i < len; ++i) {
                 this.animations[i].load_animation((self: AnimationInfo) => {
