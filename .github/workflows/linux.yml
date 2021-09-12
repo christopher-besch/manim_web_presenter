@@ -43,7 +43,7 @@ jobs:
           npm run ${{matrix.config.build_type}}
           cd ${{github.workspace}}
 
-      - test: Test
+      - name: Test
         run: |
           manim example.py --write_all
 
