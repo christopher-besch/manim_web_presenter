@@ -1,6 +1,7 @@
 body {
     margin: 0px;
     background-color: black;
+    color: white;
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -16,8 +17,8 @@ div.side-bar {
     display: flex;
     flex-direction: column;
     flex-grow: 0;
-    width: 180px;
-    min-width: 180px;
+    width: 250px;
+    min-width: 250px;
 }
 
     div.side-bar div.timeline {
@@ -28,7 +29,6 @@ div.side-bar {
     div.side-bar div.time-spent {
         display: flex;
         flex-grow: 0;
-        color: white;
         justify-content: right;
     }
 
