@@ -39,7 +39,10 @@ class AnimationInfo {
     }
 
     // load animation video using ajax
-    load_animation(on_loaded: (self: AnimationInfo) => void, on_failed: (self: AnimationInfo) => void): void {
+    load_animation(
+        on_loaded: (self: AnimationInfo) => void,
+        on_failed: (self: AnimationInfo) => void
+        ): void {
         if (this.loaded) {
             on_loaded(this);
             return;
