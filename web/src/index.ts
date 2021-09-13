@@ -1,13 +1,13 @@
 import "./index.css";
 
-type SlideJson {
+type SlideJson = {
     name: string;
     slide_type: string;
     first_animation: number;
     after_last_animation: number;
 };
 
-type PresentationJson {
+type PresentationJson = {
     animations: string[];
     slides: SlideJson[];
 };
@@ -84,12 +84,18 @@ class SlideInfo {
         for (let i = slide.first_animation; i < slide.after_last_animation; ++i)
             this.animations.push(new AnimationInfo(animations[i], this));
 
-        this.media_source.onsourceopen = on_media_source_open;
+        this.media_source.onsourceopen = this.on_media_source_open.bind(this);
     }
-    
+
     on_media_source_open(ev: Event): void {
         let media_source = ev.target as MediaSource;
-        
+
+        // if the slide doesn't have any animations just end it
+        if (this.animations.length == 0) {
+            media_source.endOfStream();
+            return;
+        }
+
         // check if MIME codec is supported
         let mime_codec = "video/mp4; codecs=\"avc1.64002A\"";
         if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
@@ -112,7 +118,7 @@ class SlideInfo {
             }
 
             // load next animations
-            append_animation_to_source_buffer(ev.target as SourceBuffer, this.animations[loaded_media_buffers]);
+            this.append_animation_to_source_buffer(ev.target as SourceBuffer, this.animations[loaded_media_buffers]);
         };
         source_buffer.onerror = (ev: Event) => {
             console.log("Failed to append buffer to source buffer:");
@@ -124,10 +130,10 @@ class SlideInfo {
         };
 
         // initially load first animation to kick start loading process
-        append_animation_to_source_buffer(source_buffer, this.animations[0]);
+        this.append_animation_to_source_buffer(source_buffer, this.animations[0]);
     }
-    
-    append_animation_to_source_buffer(source_buffer: SourceBuffer, animation: AnimationInfo) {
+
+    append_animation_to_source_buffer(source_buffer: SourceBuffer, animation: AnimationInfo): void {
         animation.load_animation((self: AnimationInfo) => {
             // success
             if (self.media_buffer == null)
@@ -188,7 +194,9 @@ class Presentation {
                     URL.revokeObjectURL(this.video_element.src);
                 this.video_element.src = "";
                 this.video_element.currentTime = 0;
-                this.video_element.play();
+                let promise = this.video_element.play();
+                if (promise !== undefined)
+                    promise.then(() => { }, () => { });
             }
         } else if (this.current_slide != this.previous_slide) {
             // if current slide is different from previous slide, change video source to new slide
@@ -202,12 +210,16 @@ class Presentation {
                 // create new object url of slides media source
                 this.video_element.src = URL.createObjectURL(slide.media_source);
                 this.video_element.currentTime = 0;
-                this.video_element.play();
+                let promise = this.video_element.play();
+                if (promise !== undefined)
+                    promise.then(() => { }, () => { });
             }
         } else if (this.video_element != null) {
             // if current slide didn't change, restart video
             this.video_element.currentTime = 0;
-            this.video_element.play();
+            let promise = this.video_element.play();
+            if (promise !== undefined)
+                promise.then(() => { }, () => { });
         }
     }
 
