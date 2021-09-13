@@ -30,14 +30,12 @@ function get_slide_type_from_string(str: string): SlideType {
 class AnimationInfo {
     slide: SlideInfo;
     url: string;
-    media_buffer: BufferSource | null;
-    loaded: boolean;
+    media_buffer: BufferSource | null = null;
+    loaded: boolean = false;
 
     constructor(url: string, slide: SlideInfo) {
         this.slide = slide;
         this.url = url;
-        this.media_buffer = null;
-        this.loaded = false;
     }
 
     // load animation video using ajax
@@ -73,13 +71,12 @@ class SlideInfo {
     type: SlideType;
     animations: AnimationInfo[] = [];
     // all animations of slide get concatenated -> only one MediaSource required
-    media_source: MediaSource;
+    media_source: MediaSource = new MediaSource();
 
     constructor(slide: SlideJson, animations: string[], presentation: Presentation) {
         this.presentation = presentation;
         this.name = slide.name;
         this.type = get_slide_type_from_string(slide.slide_type);
-        this.media_source = new MediaSource();
 
         for (let i = slide.first_animation; i < slide.after_last_animation; ++i)
             this.animations.push(new AnimationInfo(animations[i], this));
@@ -156,7 +153,7 @@ class SlideInfo {
     load_animations(): void {
         for (let i = 0; i < this.animations.length; ++i) {
             this.animations[i].load_animation(
-                () => { },
+                (self: AnimationInfo) => { },
                 (self: AnimationInfo) => {
                     console.error(`Failed to load animation "${self.url}"`);
                 });
@@ -181,10 +178,10 @@ class Presentation {
 
     update_video(): void {
         // load next slides based on this.slides_to_auto_load
-        for (let i: number = 0, len: number = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
+        for (let i = 0, len = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
             this.slides[this.current_slide + i].load_animations();
         // unload previous slides based on this.slides_to_keep
-        for (let i: number = 0, len: number = this.current_slide - this.slides_to_keep; i < len; ++i)
+        for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
             this.slides[i].unload_animations();
 
         if (this.current_slide < 0 || this.current_slide >= this.slides.length) {
@@ -253,10 +250,10 @@ class Presentation {
             let presentation = response as PresentationJson;
             let animations = presentation.animations;
             let slides = presentation.slides;
-            for (let i: number = 0; i < slides.length; ++i)
+            for (let i = 0; i < slides.length; ++i)
                 this.slides.push(new SlideInfo(slides[i], animations, this));
 
-            // Once loading and constructing the infos is done inform others that it's done
+            // once loading and constructing the infos is done inform others that it's done
             this.loaded = true;
             on_loaded(this);
         });
@@ -265,16 +262,10 @@ class Presentation {
     play_slide(slide: number): void {
         slide = Math.max(Math.min(slide, this.slides.length), 0);
 
-        if (this.current_slide >= 0) {
-            let cur_slide = this.slides[this.current_slide];
-            // If the current slide is a complete loop type, we want to wait until the slide finishes playing.
-            if (cur_slide.type == SlideType.COMPLETE_LOOP) {
-                this.next_slide = slide;
-            } else { // Else we will just switch the video instantly.
-                this.next_slide = this.current_slide = slide;
-                this.update_video();
-            }
-        } else { // Else we will just switch the video instantly.
+        if (this.current_slide >= 0 && this.slides[this.current_slide].type == SlideType.COMPLETE_LOOP) {
+            // if the current slide is a complete loop type, we want to wait until the slide finishes playing
+            this.next_slide = slide;
+        } else { // else we will just switch the video instantly
             this.next_slide = this.current_slide = slide;
             this.update_video();
         }
