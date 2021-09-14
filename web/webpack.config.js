@@ -10,8 +10,8 @@ module.exports = (env) => {
         devtool: env["production"] ? false : "eval-source-map",
         // only entry file, include any imported files
         entry: {
-            index: "./src/index.ts",
-            video_viewer: "./src/video_viewer.ts",
+            index: "./src/ts/index.ts",
+            video_viewer: "./src/ts/video_viewer.ts",
         },
         module: {
             rules: [{
@@ -36,17 +36,10 @@ module.exports = (env) => {
             extensions: [".ts", ".js", ".css"],
         },
         output: {
-            // tell dev server where to serve code in memory from
-            publicPath: "../manim_web_presenter/web",
             // template based on keys in entry
             filename: "tmp/[name].js",
             // need absolute path
             path: path.resolve(__dirname, "../manim_web_presenter/web"),
-        },
-        devServer: {
-            publicPath: "/",
-            contentBase: "../manim_web_presenter/web",
-            hot: true,
         },
         plugins: [
             new html_webpack_plugin({
