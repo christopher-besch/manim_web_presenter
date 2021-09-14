@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Fetch release version
         run: |
+          # save version from json in file
           curl -sL https://api.github.com/repos/ManimCommunity/manim/releases/latest | \
           jq -r ".tag_name" > release_versions/manim_ce_latest.txt
       - name: Check for modified files
