@@ -42,7 +42,7 @@ class AnimationInfo {
     load_animation(
         on_loaded: (self: AnimationInfo) => void,
         on_failed: (self: AnimationInfo) => void
-        ): void {
+    ): void {
         if (this.loaded) {
             on_loaded(this);
             return;
@@ -179,6 +179,7 @@ class Presentation {
     slides_to_auto_load = 5;
     slides_to_keep = 2;
 
+    // load correct slide according to current_slide
     update_video(): void {
         // load next slides based on this.slides_to_auto_load
         for (let i = 0, len = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
@@ -187,19 +188,22 @@ class Presentation {
         for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
             this.slides[i].unload_animations();
 
+        // if current slide is non existent, set video element to empty video
         if (this.current_slide < 0 || this.current_slide >= this.slides.length) {
-            // if current slide is non existant, set video element to empty video
             if (this.video_element != null) {
                 if (this.video_element.src.length != 0)
                     URL.revokeObjectURL(this.video_element.src);
                 this.video_element.src = "";
                 this.video_element.currentTime = 0;
                 let promise = this.video_element.play();
+                // todo: fill with functionality or remove
                 if (promise !== undefined)
                     promise.then(() => { }, () => { });
             }
-        } else if (this.current_slide != this.previous_slide) {
-            // if current slide is different from previous slide, change video source to new slide
+        }
+
+        // if current slide is different from previous slide, change video source to new slide
+        else if (this.current_slide != this.previous_slide) {
             this.previous_slide = this.current_slide;
             let slide = this.slides[this.current_slide];
             if (this.video_element != null) {
@@ -211,13 +215,18 @@ class Presentation {
                 this.video_element.src = URL.createObjectURL(slide.media_source);
                 this.video_element.currentTime = 0;
                 let promise = this.video_element.play();
+                // todo: fill with functionality or remove
                 if (promise !== undefined)
                     promise.then(() => { }, () => { });
             }
-        } else if (this.video_element != null) {
-            // if current slide didn't change, restart video
+        }
+
+        // if current slide didn't change, restart video
+        // -> used for loop slides
+        else if (this.video_element != null) {
             this.video_element.currentTime = 0;
             let promise = this.video_element.play();
+            // todo: fill with functionality or remove
             if (promise !== undefined)
                 promise.then(() => { }, () => { });
         }
@@ -241,7 +250,10 @@ class Presentation {
         };
     }
 
-    load_slides(on_loaded: (self: Presentation) => void, on_failed: (self: Presentation) => void): void {
+    load_slides(
+        on_loaded: (self: Presentation) => void,
+        on_failed: (self: Presentation) => void
+    ): void {
         get_json("index.json", (response, success) => {
             if (!success) {
                 console.error(response);
@@ -250,13 +262,13 @@ class Presentation {
             }
 
             // construct slide infos from the json response
-            let presentation = response as PresentationJson;
-            let animations = presentation.animations;
-            let slides = presentation.slides;
+            let presentation_json = response as PresentationJson;
+            let animations = presentation_json.animations;
+            let slides = presentation_json.slides;
             for (let i = 0; i < slides.length; ++i)
                 this.slides.push(new SlideInfo(slides[i], animations, this));
 
-            // once loading and constructing the infos is done inform others that it's done
+            // once loading and constructing of infos is done, inform others that it's done
             this.loaded = true;
             on_loaded(this);
         });
