@@ -173,6 +173,7 @@ class Presentation {
     video_element: HTMLVideoElement | null = null;
     slides: SlideInfo[] = [];
     current_slide = -1;
+    // used for complete loop slides
     next_slide = 0;
     previous_slide = -1;
     loaded = false;
@@ -275,13 +276,17 @@ class Presentation {
     }
 
     play_slide(slide: number): void {
-        slide = Math.max(Math.min(slide, this.slides.length), 0);
+        if (slide < 0) {
+            console.log(`Trying to play invalid slide #${slide}`)
+        }
 
         if (this.current_slide >= 0 && this.slides[this.current_slide].type == SlideType.COMPLETE_LOOP) {
-            // if the current slide is a complete loop type, we want to wait until the slide finishes playing
+            // if current slide is complete loop, wait until slide finishes
             this.next_slide = slide;
-        } else { // else we will just switch the video instantly
-            this.next_slide = this.current_slide = slide;
+        } else {
+            // instantly switch the video
+            this.next_slide = slide;
+            this.current_slide = slide;
             this.update_video();
         }
     }
@@ -295,19 +300,13 @@ class Presentation {
     }
 }
 
-let slides: Presentation = new Presentation();
-
-let popup_video_viewer: Window | null;
-
 // download file and parse json
 function get_json(url: string, callback: { (response: any, success: boolean): void; }): void {
     let request = new XMLHttpRequest();
-    // set callback
     request.onreadystatechange = () => {
         // when a response has been received
         if (request.readyState == 4) {
             try {
-                // 200 is success
                 callback(JSON.parse(request.responseText), request.status == 200);
             } catch (error) {
                 callback(error, false);
@@ -318,17 +317,23 @@ function get_json(url: string, callback: { (response: any, success: boolean): vo
     request.send();
 }
 
-// open popup video viewer window
+// open or focus second window, return success status
 function open_popup_video_viewer(): boolean {
-    // if the popup video viewer window is not opened, then open a new popup window
     if (popup_video_viewer == null || popup_video_viewer.closed) {
-        popup_video_viewer = window.open("/video_viewer.html", "Manim Video Viewer", "resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no");
+        popup_video_viewer = window.open(
+            "/video_viewer.html",
+            "Manim Video Viewer",
+            "resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no,status=no"
+        );
         return popup_video_viewer != null;
     } else {
         popup_video_viewer.focus();
         return true;
     }
 }
+
+let slides: Presentation = new Presentation();
+let popup_video_viewer: Window | null;
 
 document.body.onload = () => {
     slides.load_slides((self: Presentation) => {
