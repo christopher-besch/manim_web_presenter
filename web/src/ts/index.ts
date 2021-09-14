@@ -180,7 +180,7 @@ class Presentation {
     slides_to_auto_load = 5;
     slides_to_keep = 2;
 
-    // load correct slide according to current_slide
+    // update currently playing video according to current_slide
     update_video(): void {
         // load next slides based on this.slides_to_auto_load
         for (let i = 0, len = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
