@@ -15,13 +15,13 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          -{
+          - {
             name: "Debug",
             artifact: "linux_debug.tar.xz",
             build_type: "build_debug",
             quality: "ql"
           }
-          -{
+          - {
             name: "Release",
             artifact: "linux_release.tar.xz",
             build_type: "build_release",
