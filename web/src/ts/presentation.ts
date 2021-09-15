@@ -32,7 +32,7 @@ export abstract class Presentation {
             let slides = presentation_json.slides;
             for (let i = 0; i < slides.length; ++i)
                 this.add_slide(slides[i], animations);
-            console.log("All slides have been loaded successfully.")
+            console.log(`All ${slides.length} slides have been loaded successfully.`)
             onload(this);
         });
     }

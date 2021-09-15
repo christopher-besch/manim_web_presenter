@@ -21,13 +21,32 @@ function open_popup_video_viewer(): boolean {
 let presentation = new BufferPresentation();
 let popup_video_viewer: Window | null;
 
+let prev_key_codes = [
+    37, // ArrowLeft
+];
+let next_key_codes = [
+    39, // ArrowRight
+];
+
+// ignore keyboard layout
+document.addEventListener("keydown", (e: KeyboardEvent) => {
+    // todo: debug
+    console.log(e.keyCode);
+    if (e.repeat)
+        return;
+    if (prev_key_codes.includes(e.keyCode))
+        presentation.play_previous_slide();
+    else if (next_key_codes.includes(e.keyCode))
+        presentation.play_next_slide();
+});
+
 document.body.onload = () => {
     presentation.load_slides((self: Presentation) => {
         let videoElement = document.querySelector("div.main div.playback video");
         if (videoElement != null)
             self.set_video_element(videoElement as HTMLVideoElement);
         else
-            console.log("Failed to find video element")
+            console.error("Failed to find video element")
         self.set_current_slide(0);
     });
 }

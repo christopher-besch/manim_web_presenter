@@ -96,12 +96,12 @@ class Slide {
             this.append_animation_to_source_buffer(ev.target as SourceBuffer, this.animations[loaded_media_buffers]);
         };
         source_buffer.onerror = (ev: Event) => {
-            console.log("Failed to append buffer to source buffer:");
-            console.log(ev.target);
+            console.error("Failed to append buffer to source buffer:");
+            console.error(ev.target);
         };
         source_buffer.onabort = (ev: Event) => {
-            console.log("Aborted source buffer:");
-            console.log(ev.target);
+            console.error("Aborted source buffer:");
+            console.error(ev.target);
         };
 
         // initially load first animation to kick start loading process
@@ -233,9 +233,11 @@ export class BufferPresentation extends Presentation {
     get_current_slide(): number { return this.current_slide; }
 
     set_current_slide(slide: number): void {
-        if (slide < 0) {
-            console.log(`Trying to play invalid slide #${slide}`)
-        }
+        if (slide < 0 || slide >= this.slides.length) {
+            console.error(`Trying to switch to invalid slide #${slide}`)
+            return;
+        } else
+            console.log(`Switching to slide #${slide}`)
 
         if (this.current_slide >= 0 && this.slides[this.current_slide].type == SlideType.COMPLETE_LOOP) {
             // if current slide is complete loop, wait until slide finishes
