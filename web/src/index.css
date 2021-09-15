@@ -7,11 +7,11 @@ body {
     display: flex;
 }
 
-    body div.content {
-        display: flex;
-        flex-direction: row;
-        flex-grow: 1;
-    }
+body div.content {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
 
 div.side-bar {
     display: flex;
@@ -21,16 +21,16 @@ div.side-bar {
     min-width: 250px;
 }
 
-    div.side-bar div.timeline {
-        display: flex;
-        flex-grow: 1;
-    }
+div.side-bar div.timeline {
+    display: flex;
+    flex-grow: 1;
+}
 
-    div.side-bar div.time-spent {
-        display: flex;
-        flex-grow: 0;
-        justify-content: right;
-    }
+div.side-bar div.time-spent {
+    display: flex;
+    flex-grow: 0;
+    justify-content: right;
+}
 
 div.main {
     display: flex;
@@ -38,22 +38,22 @@ div.main {
     flex-grow: 1;
 }
 
-    div.main div.playback {
-        display: flex;
-        flex-direction: row;
-        flex-grow: 1;
-        min-height: 0;
-    }
+div.main div.playback {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: 0;
+}
 
-        div.main div.playback video {
-            flex-grow: 1;
-            max-width: calc(100vw - 250px);
-        }
+div.main div.playback video {
+    flex-grow: 1;
+    max-width: calc(100vw - 250px);
+}
 
-    div.main div.controls {
-        display: flex;
-        flex-grow: 0;
-        justify-content: center;
-        height: 180px;
-        min-height: 180px;
-    }
+div.main div.controls {
+    display: flex;
+    flex-grow: 0;
+    justify-content: center;
+    height: 180px;
+    min-height: 180px;
+}
