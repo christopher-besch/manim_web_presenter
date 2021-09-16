@@ -83,12 +83,20 @@ class RawPresentation:
         if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
             os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
-        slide_name = type(owner).__name__
-        self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, slide_name)
+        presentation_name = type(owner).__name__
+        if presentation_name == "tmp":
+            raise RuntimeError("The Presentation can't be called 'tmp'")
+
+        self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, presentation_name)
         # contain everything required to play this presentation including video files
         if os.path.exists(self.output_folder):
             shutil.rmtree(self.output_folder)
         os.mkdir(self.output_folder)
+
+        self.tmp_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, "tmp")
+        if os.path.exists(self.tmp_folder):
+            shutil.rmtree(self.tmp_folder)
+        os.mkdir(self.tmp_folder)
 
         # stores intel about how to present slides
         self.index_file = os.path.join(self.output_folder, "index.json")
@@ -121,22 +129,22 @@ class RawPresentation:
         assert len(self.slides) != 0, "The presentation doesn't contain any animations."
         self.parent.tear_down(*args, **kwargs)
 
-    # copy intermediate video files
-    def copy_animations(self) -> List[str]:
-        animations = []
-        # let's tinker with the very fabric of manim's reality
-        for idx, src_file in enumerate(self.owner.renderer.file_writer.partial_movie_files):
-            assert src_file.endswith(".mp4"), "Only mp4 files are supported. Did you add a 'wait' or 'play' statement to the presentation?"
-            dst_file = os.path.join(self.output_folder, os.path.basename(src_file))
-
-            # required by web presenter front end
-            manim.logger.info(f"Converting animation #{idx}...")
-            if os.system(f"ffmpeg -v {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
-                raise RuntimeError(f"ffmpeg failed to encode animation #{idx}")
-
-            animations.append(os.path.basename(dst_file))
-
-        return animations
+    def combine_animations(self) -> None:
+        src_files = self.owner.renderer.file_writer.partial_movie_files
+        for slide_id, slide in enumerate(self.slides):
+            with open(os.path.join(self.tmp_folder, "animations.txt"), "w") as animations_file:
+                for idx in range(slide.first_animation, slide.after_last_animation):
+                    src_file = src_files[idx]
+                    dst_file = os.path.join(self.tmp_folder, f"{idx}.mp4")
+                    animations_file.write(f"file {dst_file}\n")
+                    manim.logger.info(f"Converting animation #{idx}...")
+                    # copy and fragment videos -> needed by front end
+                    if os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
+                        raise RuntimeError(f"ffmpeg failed to encode animation #{idx}, used by slide '{slide.name}'")
+            # combine animations
+            full_dst_file = os.path.join(self.output_folder, f"{slide_id}.mp4")
+            manim.logger.info(f"Combining animations for slide '{slide.name}'...")
+            os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -f concat -i {animations_file} -c copy {full_dst_file}")
 
     def copy_movie_file(self):
         movie_file = self.owner.renderer.file_writer.movie_file_path
@@ -151,12 +159,11 @@ class RawPresentation:
         self.parent.render(*args, **kwargs)
         manim.config.max_files_cached = max_files_cached
 
-        animations = self.copy_animations()
+        self.combine_animations()
         self.copy_movie_file()
 
         with open(self.index_file, "w") as file:
             json.dump({
-                "animations": animations,
                 "slides": [slide.get_dict() for slide in self.slides],
             }, file)
 
