@@ -43,24 +43,31 @@ def get_inheritors(class_):
 
 # represent
 class Slide:
-    def __init__(self, slide_type: str, name: str, first_animation: int):
+    def __init__(self, slide_type: str, name: str, slide_id: int, first_animation: int):
         self.slide_type = slide_type
         # names are not intended to be unique
         self.name = name
+        self.slide_id = slide_id
         # inclusive
         self.first_animation = first_animation
         # exclusive
         self.after_last_animation = first_animation
+        self.video = ""
 
     def empty(self) -> bool:
         return self.first_animation == self.after_last_animation
+
+    def set_video(self, video: str) -> None:
+        self.video = video
 
     def get_dict(self) -> Dict:
         return {
             "slide_type": self.slide_type,
             "name": self.name,
+            "slide_id": self.slide_id,
             "first_animation": self.first_animation,
             "after_last_animation": self.after_last_animation,
+            "video": self.video,
         }
 
     def __repr__(self):
@@ -121,6 +128,7 @@ class RawPresentation:
         self.finish_last_slide()
         self.slides.append(Slide(slide_type,
                                  name,
+                                 len(self.slides),
                                  self.next_animation))
 
     # after slides have been defined but before render to files
@@ -129,22 +137,28 @@ class RawPresentation:
         assert len(self.slides) != 0, "The presentation doesn't contain any animations."
         self.parent.tear_down(*args, **kwargs)
 
+    # copy animations into tmp folder and concatenate into single file
     def combine_animations(self) -> None:
         src_files = self.owner.renderer.file_writer.partial_movie_files
-        for slide_id, slide in enumerate(self.slides):
-            with open(os.path.join(self.tmp_folder, "animations.txt"), "w") as animations_file:
-                for idx in range(slide.first_animation, slide.after_last_animation):
-                    src_file = src_files[idx]
-                    dst_file = os.path.join(self.tmp_folder, f"{idx}.mp4")
-                    animations_file.write(f"file {dst_file}\n")
+        for slide in self.slides:
+            index_file = os.path.join(self.tmp_folder, "animations.txt")
+            # copy and fragment videos -> needed by front end
+            with open(index_file, "w") as file:
+                for idx, src_file in enumerate(src_files[slide.first_animation:slide.after_last_animation]):
+                    dst_filename = f"{idx}.mp4"
+                    dst_file = os.path.join(self.tmp_folder, dst_filename)
+                    file.write(f"file {dst_filename}\n")
                     manim.logger.info(f"Converting animation #{idx}...")
-                    # copy and fragment videos -> needed by front end
                     if os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
                         raise RuntimeError(f"ffmpeg failed to encode animation #{idx}, used by slide '{slide.name}'")
+
             # combine animations
-            full_dst_file = os.path.join(self.output_folder, f"{slide_id}.mp4")
+            full_dst_filename = f"{slide.slide_id}.mp4"
+            full_dst_file = os.path.join(self.output_folder, full_dst_filename)
+            slide.set_video(full_dst_filename)
             manim.logger.info(f"Combining animations for slide '{slide.name}'...")
-            os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -f concat -i {animations_file} -c copy {full_dst_file}")
+            if os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -f concat -i {index_file} -c copy {full_dst_file}") != 0:
+                raise RuntimeError(f"ffmpeg failed to concatenate the animations of slide '{slide.name}'")
 
     def copy_movie_file(self):
         movie_file = self.owner.renderer.file_writer.movie_file_path
@@ -175,7 +189,7 @@ class RawPresentation:
         ]
         for file in web_files:
             shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
-        write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), animations=animations, slides=self.slides)
+        write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), slides=self.slides)
 
 
 #####################
