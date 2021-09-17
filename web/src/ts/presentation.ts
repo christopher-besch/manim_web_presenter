@@ -31,7 +31,7 @@ export abstract class Presentation {
     next_slide = 0;
     previous_slide = -1;
 
-    load_slides(onload: { (self: Presentation): void; }): void {
+    load_slides(on_load: { (self: Presentation): void; }): void {
         get_json("index.json", (response, success) => {
             if (!success) {
                 console.error(response);
@@ -44,19 +44,24 @@ export abstract class Presentation {
             let slides = presentation_json.slides;
             for (let i = 0; i < slides.length; ++i)
                 this.add_slide(slides[i]);
-            console.log(`All ${slides.length} slides have been loaded successfully.`)
-            onload(this);
+            console.log(`All ${slides.length} slides have been parsed successfully.`)
+            on_load(this);
         });
     }
 
-    abstract add_slide(slide: SlideJson, animations: string[]): void;
+    abstract add_slide(slide: SlideJson): void;
     abstract set_video_element(video_element: HTMLVideoElement): void;
 
     abstract get_current_slide(): number;
     abstract set_current_slide(slide: number): void;
 
-    abstract play_next_slide(): void;
-    abstract play_previous_slide(): void;
+    play_next_slide(): void {
+        this.set_current_slide(this.current_slide + 1);
+    }
+
+    play_previous_slide(): void {
+        this.set_current_slide(this.current_slide - 1);
+    }
 };
 
 export abstract class Slide {
@@ -89,5 +94,4 @@ function get_json(url: string, callback: { (response: any, success: boolean): vo
     request.open("GET", url, true);
     request.send();
 }
-
 

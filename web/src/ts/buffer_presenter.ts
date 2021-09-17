@@ -1,5 +1,5 @@
 import "../index.css";
-import { SlideJson, Presentation, Slide, SlideType, get_slide_type_from_string } from "./presentation";
+import { SlideJson, Presentation, Slide, SlideType } from "./presentation";
 
 class BufferSlide extends Slide {
     media_source: MediaSource = new MediaSource();
@@ -11,56 +11,41 @@ class BufferSlide extends Slide {
     }
 
     on_media_source_open(ev: Event): void {
-        let media_source = ev.target as MediaSource;
-
         // check if MIME codec is supported
-        let mime_codec = "video/mp4; codecs=\"avc1.64002A\"";
+        let mime_codec = 'video/mp4; codecs="avc1.64002A"';
         if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
             console.error("MediaSource or mime codec not supported");
-            media_source.endOfStream();
+            this.media_source.endOfStream();
             return;
         }
 
         // add source buffer to media source of this slide
-        let source_buffer = media_source.addSourceBuffer(mime_codec);
-        source_buffer.mode = "sequence";
-        let loaded_media_buffers = 0;
+        let source_buffer = this.media_source.addSourceBuffer(mime_codec);
+        // source_buffer.mode = "sequence";
 
         // set callbacks
         source_buffer.onupdateend = (ev: Event) => {
-            // all required animations loaded?
-            if (++loaded_media_buffers == this.animations.length) {
-                media_source.endOfStream();
-                return;
-            }
-
-            // load next animations
-            this.append_animation_to_source_buffer(ev.target as SourceBuffer, this.animations[loaded_media_buffers]);
+            console.log(`ending slide '${this.name}'`)
+            this.media_source.endOfStream();
         };
         source_buffer.onerror = (ev: Event) => {
             console.error("Failed to append buffer to source buffer:");
-            console.error(ev.target);
+            console.error(this.media_source);
         };
         source_buffer.onabort = (ev: Event) => {
             console.error("Aborted source buffer:");
-            console.error(ev.target);
+            console.error(this.media_source);
         };
 
-        // initially load first animation to kick start loading process
-        this.append_animation_to_source_buffer(source_buffer, this.animations[0]);
-    }
-
-    append_animation_to_source_buffer(source_buffer: SourceBuffer, animation: Animation): void {
-        animation.load_animation((self: Animation) => {
+        this.load(() => {
             // success
-            if (self.media_buffer == null)
+            if (this.media_buffer == null)
                 source_buffer.abort();
             else
-                source_buffer.appendBuffer(self.media_buffer);
-        }, (self: Animation) => {
+                source_buffer.appendBuffer(this.media_buffer);
+        }, () => {
             // failure
             source_buffer.abort();
-            console.error(`Failed to load animation "${self.url}"`);
         });
     }
 
@@ -68,18 +53,14 @@ class BufferSlide extends Slide {
         return this.media_source;
     }
 
-    get_animation(animation: number): Animation | null {
-        if (animation >= 0 && animation < this.animations.length)
-            return this.animations[animation];
-        return null;
-    }
-
     load(
-        on_loaded: (self: BufferSlide) => void,
-        on_failed: (self: BufferSlide) => void
+        on_loaded: (() => void) | null = null,
+        on_failed: (() => void) | null = null
     ): void {
         if (this.media_buffer != null) {
-            on_loaded(this);
+            console.error("Trying to load already loaded slide.");
+            if (on_loaded !== null)
+                on_loaded();
             return;
         }
 
@@ -87,10 +68,14 @@ class BufferSlide extends Slide {
         request.responseType = "arraybuffer";
         request.onload = () => {
             this.media_buffer = request.response;
-            on_loaded(this);
+            console.log(`Slide '${this.name}' successfully loaded`);
+            if (on_loaded !== null)
+                on_loaded();
         };
         request.onerror = () => {
-            this.media_buffer.abort();
+            console.error(`Slide '${this.name}' failed to load`);
+            if (on_failed !== null)
+                on_failed();
         };
         request.open("GET", this.video, true);
         request.send();
@@ -103,7 +88,7 @@ class BufferSlide extends Slide {
 
 export class BufferPresentation extends Presentation {
     video_element: HTMLVideoElement | null = null;
-    slides: Slide[] = [];
+    slides: BufferSlide[] = [];
     // used for complete loop slides
     loaded = false;
     slides_to_auto_load = 5;
@@ -113,10 +98,10 @@ export class BufferPresentation extends Presentation {
     update_video(): void {
         // load next slides based on this.slides_to_auto_load
         for (let i = 0, len = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
-            this.slides[this.current_slide + i].load_animations();
+            this.slides[this.current_slide + i].load();
         // unload previous slides based on this.slides_to_keep
         for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
-            this.slides[i].unload_animations();
+            this.slides[i].unload();
 
         // if current slide is non existent, set video element to empty video
         if (this.current_slide < 0 || this.current_slide >= this.slides.length) {
@@ -162,11 +147,11 @@ export class BufferPresentation extends Presentation {
         }
     }
 
-    add_slide(slide: SlideJson): void {
-        this.slides.push(new Slide(slide));
+    override add_slide(slide: SlideJson): void {
+        this.slides.push(new BufferSlide(slide));
     }
 
-    set_video_element(video_element: HTMLVideoElement): void {
+    override set_video_element(video_element: HTMLVideoElement): void {
         this.video_element = video_element;
 
         // attach an event to when the video has ended and update the video accordingly
@@ -184,9 +169,9 @@ export class BufferPresentation extends Presentation {
         };
     }
 
-    get_current_slide(): number { return this.current_slide; }
+    override get_current_slide(): number { return this.current_slide; }
 
-    set_current_slide(slide: number): void {
+    override set_current_slide(slide: number): void {
         if (slide < 0 || slide >= this.slides.length) {
             console.error(`Trying to switch to invalid slide #${slide}`)
             return;
@@ -202,13 +187,5 @@ export class BufferPresentation extends Presentation {
             this.current_slide = slide;
             this.update_video();
         }
-    }
-
-    play_next_slide(): void {
-        this.set_current_slide(this.current_slide + 1);
-    }
-
-    play_previous_slide(): void {
-        this.set_current_slide(this.current_slide - 1);
     }
 }
