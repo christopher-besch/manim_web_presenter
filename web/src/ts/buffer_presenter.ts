@@ -23,26 +23,26 @@ class BufferSlide extends Slide {
         let source_buffer = this.media_source.addSourceBuffer(mime_codec);
         // source_buffer.mode = "sequence";
 
-        // set callbacks
-        source_buffer.onupdateend = (ev: Event) => {
-            console.log(`ending slide '${this.name}'`)
-            this.media_source.endOfStream();
-        };
-        source_buffer.onerror = (ev: Event) => {
-            console.error("Failed to append buffer to source buffer:");
-            console.error(this.media_source);
-        };
-        source_buffer.onabort = (ev: Event) => {
-            console.error("Aborted source buffer:");
-            console.error(this.media_source);
-        };
-
         this.load(() => {
-            // success
-            if (this.media_buffer == null)
+            if (this.media_buffer == null) {
                 source_buffer.abort();
-            else
-                source_buffer.appendBuffer(this.media_buffer);
+                return;
+            }
+            // success
+            // set callbacks
+            source_buffer.onupdateend = (ev: Event) => {
+                this.media_source.endOfStream();
+            };
+            source_buffer.onerror = (ev: Event) => {
+                console.error("Failed to append buffer to source buffer:");
+                console.error(this.media_source);
+            };
+            source_buffer.onabort = (ev: Event) => {
+                console.error("Aborted source buffer:");
+                console.error(this.media_source);
+            };
+
+            source_buffer.appendBuffer(this.media_buffer);
         }, () => {
             // failure
             source_buffer.abort();
