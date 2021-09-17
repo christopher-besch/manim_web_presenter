@@ -1,75 +1,17 @@
 import "../index.css";
-import { Presentation, SlideJson, SlideType, get_slide_type_from_string } from "./presentation";
+import { SlideJson, Presentation, Slide, SlideType, get_slide_type_from_string } from "./presentation";
 
-
-class Animation {
-    slide: Slide;
-    url: string;
-    media_buffer: BufferSource | null = null;
-    loaded: boolean = false;
-
-    constructor(url: string, slide: Slide) {
-        this.slide = slide;
-        this.url = url;
-    }
-
-    // load animation video using ajax
-    load_animation(
-        on_loaded: (self: Animation) => void,
-        on_failed: (self: Animation) => void
-    ): void {
-        if (this.loaded) {
-            on_loaded(this);
-            return;
-        }
-
-        let request = new XMLHttpRequest();
-        request.responseType = "arraybuffer";
-        request.onload = () => {
-            this.media_buffer = request.response;
-            this.loaded = true;
-            on_loaded(this);
-        };
-        request.onerror = () => {
-            on_failed(this);
-        };
-        request.open("GET", this.url, true);
-        request.send();
-    }
-
-    unload_animation(): void {
-        this.media_buffer = null;
-        this.loaded = false;
-    }
-}
-
-class Slide {
-    presentation: Presentation;
-    name: string;
-    type: SlideType;
-    animations: Animation[] = [];
-    // all animations of slide get concatenated -> only one MediaSource required
+class BufferSlide extends Slide {
     media_source: MediaSource = new MediaSource();
+    media_buffer: BufferSource | null = null;
 
-    constructor(slide: SlideJson, animations: string[], presentation: Presentation) {
-        this.presentation = presentation;
-        this.name = slide.name;
-        this.type = get_slide_type_from_string(slide.slide_type);
-
-        for (let i = slide.first_animation; i < slide.after_last_animation; ++i)
-            this.animations.push(new Animation(animations[i], this));
-
+    constructor(slide: SlideJson) {
+        super(slide);
         this.media_source.onsourceopen = this.on_media_source_open.bind(this);
     }
 
     on_media_source_open(ev: Event): void {
         let media_source = ev.target as MediaSource;
-
-        // if the slide doesn't have any animations just end it
-        if (this.animations.length == 0) {
-            media_source.endOfStream();
-            return;
-        }
 
         // check if MIME codec is supported
         let mime_codec = "video/mp4; codecs=\"avc1.64002A\"";
@@ -122,35 +64,47 @@ class Slide {
         });
     }
 
+    get_media_source(): MediaSource {
+        return this.media_source;
+    }
+
     get_animation(animation: number): Animation | null {
         if (animation >= 0 && animation < this.animations.length)
             return this.animations[animation];
         return null;
     }
 
-    load_animations(): void {
-        for (let i = 0; i < this.animations.length; ++i) {
-            this.animations[i].load_animation(
-                (self: Animation) => { },
-                (self: Animation) => {
-                    console.error(`Failed to load animation "${self.url}"`);
-                });
+    load(
+        on_loaded: (self: BufferSlide) => void,
+        on_failed: (self: BufferSlide) => void
+    ): void {
+        if (this.media_buffer != null) {
+            on_loaded(this);
+            return;
         }
+
+        let request = new XMLHttpRequest();
+        request.responseType = "arraybuffer";
+        request.onload = () => {
+            this.media_buffer = request.response;
+            on_loaded(this);
+        };
+        request.onerror = () => {
+            this.media_buffer.abort();
+        };
+        request.open("GET", this.video, true);
+        request.send();
     }
 
-    unload_animations(): void {
-        for (let i = 0; i < this.animations.length; ++i)
-            this.animations[i].unload_animation();
+    unload(): void {
+        this.media_buffer = null;
     }
 }
 
 export class BufferPresentation extends Presentation {
     video_element: HTMLVideoElement | null = null;
     slides: Slide[] = [];
-    current_slide = -1;
     // used for complete loop slides
-    next_slide = 0;
-    previous_slide = -1;
     loaded = false;
     slides_to_auto_load = 5;
     slides_to_keep = 2;
@@ -188,7 +142,7 @@ export class BufferPresentation extends Presentation {
                 if (this.video_element.src.length != 0)
                     URL.revokeObjectURL(this.video_element.src);
                 // create new object url of slides media source
-                this.video_element.src = URL.createObjectURL(slide.media_source);
+                this.video_element.src = URL.createObjectURL(slide.get_media_source());
                 this.video_element.currentTime = 0;
                 let promise = this.video_element.play();
                 // todo: fill with functionality or remove
@@ -208,8 +162,8 @@ export class BufferPresentation extends Presentation {
         }
     }
 
-    add_slide(slide: SlideJson, animations: string[]): void {
-        this.slides.push(new Slide(slide, animations, this));
+    add_slide(slide: SlideJson): void {
+        this.slides.push(new Slide(slide));
     }
 
     set_video_element(video_element: HTMLVideoElement): void {

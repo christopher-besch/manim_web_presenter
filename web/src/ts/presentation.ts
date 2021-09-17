@@ -1,14 +1,14 @@
-
 export type PresentationJson = {
-    animations: string[];
     slides: SlideJson[];
 };
 
 export type SlideJson = {
-    name: string;
     slide_type: string;
+    name: string;
+    slide_id: number;
     first_animation: number;
     after_last_animation: number;
+    video: string;
 };
 
 export enum SlideType {
@@ -17,7 +17,20 @@ export enum SlideType {
     COMPLETE_LOOP
 }
 
+export function get_slide_type_from_string(str: string): SlideType {
+    switch (str) {
+        case "normal": return SlideType.NORMAL;
+        case "loop": return SlideType.LOOP;
+        case "complete_loop": return SlideType.COMPLETE_LOOP;
+        default: return SlideType.NORMAL;
+    }
+}
+
 export abstract class Presentation {
+    current_slide = -1;
+    next_slide = 0;
+    previous_slide = -1;
+
     load_slides(onload: { (self: Presentation): void; }): void {
         get_json("index.json", (response, success) => {
             if (!success) {
@@ -28,10 +41,9 @@ export abstract class Presentation {
 
             // construct slides from json response
             let presentation_json = response as PresentationJson;
-            let animations = presentation_json.animations;
             let slides = presentation_json.slides;
             for (let i = 0; i < slides.length; ++i)
-                this.add_slide(slides[i], animations);
+                this.add_slide(slides[i]);
             console.log(`All ${slides.length} slides have been loaded successfully.`)
             onload(this);
         });
@@ -47,12 +59,17 @@ export abstract class Presentation {
     abstract play_previous_slide(): void;
 };
 
-export function get_slide_type_from_string(str: string): SlideType {
-    switch (str) {
-        case "normal": return SlideType.NORMAL;
-        case "loop": return SlideType.LOOP;
-        case "complete_loop": return SlideType.COMPLETE_LOOP;
-        default: return SlideType.NORMAL;
+export abstract class Slide {
+    type: SlideType;
+    name: string;
+    slide_id: number;
+    video: string;
+
+    constructor(slide: SlideJson) {
+        this.type = get_slide_type_from_string(slide.slide_type);
+        this.name = slide.name;
+        this.slide_id = slide.slide_id;
+        this.video = slide.video;
     }
 }
 
