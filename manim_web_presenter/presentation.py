@@ -41,6 +41,14 @@ def get_inheritors(class_):
     return subclasses
 
 
+def ffmpeg_concat(index_file: str, out_file: str) -> bool:
+    return os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -f concat -i {index_file} -c copy {out_file}") == 0
+
+
+def ffmpeg_fragment(src_file: str, dst_file: str) -> bool:
+    return os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") == 0
+
+
 # represent
 class Slide:
     def __init__(self, slide_type: str, name: str, slide_id: int, first_animation: int):
@@ -149,16 +157,19 @@ class RawPresentation:
                     dst_file = os.path.join(self.tmp_folder, dst_filename)
                     file.write(f"file {dst_filename}\n")
                     manim.logger.info(f"Converting animation #{idx}...")
-                    if os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -i {src_file} -movflags frag_keyframe+empty_moov+default_base_moof {dst_file}") != 0:
-                        raise RuntimeError(f"ffmpeg failed to encode animation #{idx}, used by slide '{slide.name}'")
+                    shutil.copyfile(src_file, dst_file)
 
             # combine animations
             full_dst_filename = f"{slide.slide_id}.mp4"
             full_dst_file = os.path.join(self.output_folder, full_dst_filename)
+            full_tmp_file = os.path.join(self.tmp_folder, full_dst_filename)
             slide.set_video(full_dst_filename)
             manim.logger.info(f"Combining animations for slide '{slide.name}'...")
-            if os.system(f"ffmpeg -loglevel {manim.config.ffmpeg_loglevel.lower()} -y -f concat -i {index_file} -c copy {full_dst_file}") != 0:
+            if not ffmpeg_concat(index_file, full_tmp_file):
                 raise RuntimeError(f"ffmpeg failed to concatenate the animations of slide '{slide.name}'")
+            manim.logger.info(f"Fragmenting concatenated animations for slide '{slide.name}'...")
+            if not ffmpeg_fragment(full_tmp_file, full_dst_file):
+                raise RuntimeError(f"ffmpeg failed to encode concatenated animations of slide '{slide.name}'")
 
     def copy_movie_file(self):
         movie_file = self.owner.renderer.file_writer.movie_file_path
