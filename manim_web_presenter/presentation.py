@@ -151,18 +151,20 @@ class RawPresentation:
         for slide in self.slides:
             index_file = os.path.join(self.tmp_folder, "animations.txt")
             # copy and fragment videos -> needed by front end
-            with open(index_file, "w") as file:
+            with open(index_file, "w", encoding="utf-8") as file:
                 for idx, src_file in enumerate(src_files[slide.first_animation:slide.after_last_animation]):
                     dst_filename = f"{idx}.mp4"
                     dst_file = os.path.join(self.tmp_folder, dst_filename)
                     file.write(f"file {dst_filename}\n")
                     manim.logger.info(f"Converting animation #{idx}...")
                     shutil.copyfile(src_file, dst_file)
+                    # if not ffmpeg_fragment(src_file, dst_file):
+                    #     raise RuntimeError(f"ffmpeg failed to encode animation #{idx} for slide '{slide.name}'")
 
             # combine animations
             full_dst_filename = f"{slide.slide_id}.mp4"
             full_dst_file = os.path.join(self.output_folder, full_dst_filename)
-            full_tmp_file = os.path.join(self.tmp_folder, full_dst_filename)
+            full_tmp_file = os.path.join(self.tmp_folder, "out.mp4")
             slide.set_video(full_dst_filename)
             manim.logger.info(f"Combining animations for slide '{slide.name}'...")
             if not ffmpeg_concat(index_file, full_tmp_file):

@@ -16,9 +16,8 @@ class Test(Presentation):
         square.rotate(PI/4)
         self.play(Create(square))
         self.play(Transform(square, circle))
-        self.next_loop_slide()
-        self.play(FadeOut(square))
         self.next_normal_slide("Test2")
+        self.play(FadeOut(square))
 
 
 class LongTest(Presentation):
