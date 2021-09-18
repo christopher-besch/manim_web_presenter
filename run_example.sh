@@ -28,7 +28,8 @@ echo "|                      |"
 echo "| Rendering with manim |"
 echo "'----------------------'"
 cd "$SCRIPTPATH"
-manim example.py --write_all $manim_args
+# manim example.py --write_all $manim_args
+manim example.py $manim_args Test
 echo ".-------------------------------."
 echo "| Finished rendering with manim |"
 echo "|                               |"

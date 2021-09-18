@@ -13,12 +13,7 @@
     <a href="movie.mp4">Entire Presentation</a>
 
     {% for slide in slides %}
-    <h2>{{ slide.name }}</h2>
-    <ul>
-        {% for animation in animations[slide.first_animation:slide.after_last_animation] %}
-        <li><a href="{{ animation }}">{{ animation }}</a></li>
-        {% endfor %}
-    </ul>
+    <h2><a href="{{ slide.video }}">{{ slide.name }}</a></h2>
     {% endfor %}
 </body>
 
