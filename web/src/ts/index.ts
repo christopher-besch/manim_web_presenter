@@ -1,6 +1,7 @@
 import "../index.css";
 
 import { BufferPresentation } from "./buffer_presenter";
+import { FallbackPresentation } from "./fallback_presenter";
 import { Presentation } from "./presentation";
 
 // open or focus second window, return success status
@@ -18,7 +19,8 @@ function open_popup_video_viewer(): boolean {
     }
 }
 
-let presentation = new BufferPresentation();
+// let presentation = new BufferPresentation(5, 2);
+let presentation = new FallbackPresentation();
 let popup_video_viewer: Window | null;
 
 let prev_key_codes = [

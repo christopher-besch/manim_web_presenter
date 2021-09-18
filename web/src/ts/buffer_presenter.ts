@@ -1,5 +1,5 @@
 import "../index.css";
-import { SlideJson, Presentation, Slide, SlideType } from "./presentation";
+import { SlideJson, Presentation, Slide } from "./presentation";
 
 class BufferSlide extends Slide {
     media_source: MediaSource = new MediaSource();
@@ -84,90 +84,29 @@ class BufferSlide extends Slide {
 }
 
 export class BufferPresentation extends Presentation {
-    video_element: HTMLVideoElement | null = null;
-    slides: BufferSlide[] = [];
     // when both 0, only current slide will be buffered
-    slides_to_auto_load = 1;
-    slides_to_keep = 1;
+    slides_to_auto_load;
+    slides_to_keep;
+
+    constructor(slides_to_auto_load: number, slides_to_keep: number) {
+        super();
+        this.slides_to_auto_load = slides_to_auto_load;
+        this.slides_to_keep = slides_to_keep;
+    }
 
     // update currently playing video according to current_slide
-    update_video(): void {
+    override update_video(): void {
         // load next slides
-        for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i) {
-            console.log(i);
-            this.slides[i].load();
-        }
+        for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i)
+            (this.slides[i] as BufferSlide).load();
         // unload previous slides
         for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
-            this.slides[i].unload();
+            (this.slides[i] as BufferSlide).unload();
 
-        // if current slide is different from previous slide, change video source to new slide
-        if (this.current_slide != this.previous_slide) {
-            this.previous_slide = this.current_slide;
-            let slide = this.slides[this.current_slide];
-            if (this.video_element != null) {
-                // revoke object url of video element if it exists
-                // this has to be done because the pointer thingy isn't deleted automatically
-                if (this.video_element.src.length != 0)
-                    URL.revokeObjectURL(this.video_element.src);
-                // create new object url of slides media source
-                this.video_element.src = slide.get_src_url();
-                this.video_element.currentTime = 0;
-                let promise = this.video_element.play();
-                if (promise !== undefined)
-                    promise.then(() => { }, () => { });
-            }
-        }
-
-        // if current slide didn't change, restart video
-        // -> used for loop slides
-        else if (this.video_element != null) {
-            this.video_element.currentTime = 0;
-            let promise = this.video_element.play();
-            if (promise !== undefined)
-                promise.then(() => { }, () => { });
-        }
+        this.play_video();
     }
 
     override add_slide(slide: SlideJson): void {
         this.slides.push(new BufferSlide(slide));
-    }
-
-    override set_video_element(video_element: HTMLVideoElement): void {
-        this.video_element = video_element;
-
-        // attach an event to when the video has ended and update the video accordingly
-        this.video_element.onended = (ev: Event) => {
-            let cur_slide = this.slides[this.current_slide];
-            switch (cur_slide.type) {
-                case SlideType.LOOP: // when current slide is a loop type restart from beginning
-                    this.update_video();
-                    break;
-                case SlideType.COMPLETE_LOOP: // when current slide is complete loop and next slide has changed, go to next one
-                    this.current_slide = this.next_slide;
-                    this.update_video();
-                    break;
-            }
-        };
-    }
-
-    override get_current_slide(): number { return this.current_slide; }
-
-    override set_current_slide(slide: number): void {
-        if (slide < 0 || slide >= this.slides.length) {
-            console.error(`Trying to switch to invalid slide #${slide}`)
-            return;
-        } else
-            console.log(`Switching to slide #${slide}`)
-
-        if (this.current_slide >= 0 && this.slides[this.current_slide].type == SlideType.COMPLETE_LOOP) {
-            // if current slide is complete loop, wait until slide finishes
-            this.next_slide = slide;
-        } else {
-            // instantly switch the video
-            this.next_slide = slide;
-            this.current_slide = slide;
-            this.update_video();
-        }
     }
 }
