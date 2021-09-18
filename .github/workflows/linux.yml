@@ -19,13 +19,15 @@ jobs:
             name: "Debug",
             artifact: "linux_debug.tar.xz",
             build_type: "build_debug",
-            quality: "ql"
+            quality: "ql",
+            push_to_pages: false
           }
           - {
             name: "Release",
             artifact: "linux_release.tar.xz",
             build_type: "build_release",
-            quality: "qh"
+            quality: "qh",
+            push_to_pages: true
           }
     steps:
       - name: Checkout
@@ -52,7 +54,7 @@ jobs:
           manim example.py "-${{matrix.config.quality}}" --write_all
 
       - name: Deploy to GitHub Pages
-        if: success()
+        if: matrix.config.push_to_pages && success()
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: pages
