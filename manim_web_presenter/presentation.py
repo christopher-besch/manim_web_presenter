@@ -156,8 +156,8 @@ class RawPresentation:
                     dst_filename = f"{idx}.mp4"
                     dst_file = os.path.join(self.tmp_folder, dst_filename)
                     file.write(f"file {dst_filename}\n")
-                    manim.logger.info(f"Converting animation #{idx}...")
                     shutil.copyfile(src_file, dst_file)
+                    # manim.logger.info(f"Converting animation #{idx}...")
                     # if not ffmpeg_fragment(src_file, dst_file):
                     #     raise RuntimeError(f"ffmpeg failed to encode animation #{idx} for slide '{slide.name}'")
 
