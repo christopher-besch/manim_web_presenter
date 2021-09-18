@@ -76,6 +76,8 @@ export abstract class Slide {
         this.slide_id = slide.slide_id;
         this.video = slide.video;
     }
+
+    abstract get_src_url(): string;
 }
 
 // download file and parse json

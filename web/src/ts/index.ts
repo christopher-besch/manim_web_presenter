@@ -31,7 +31,6 @@ let next_key_codes = [
 // ignore keyboard layout
 document.addEventListener("keydown", (e: KeyboardEvent) => {
     // todo: debug
-    console.log(e.keyCode);
     if (e.repeat)
         return;
     if (prev_key_codes.includes(e.keyCode))

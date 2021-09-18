@@ -7,58 +7,51 @@ class BufferSlide extends Slide {
 
     constructor(slide: SlideJson) {
         super(slide);
-        this.media_source.onsourceopen = this.on_media_source_open.bind(this);
-    }
-
-    on_media_source_open(ev: Event): void {
-        // check if MIME codec is supported
-        let mime_codec = 'video/mp4; codecs="avc1.64002A"';
-        if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
-            console.error("MediaSource or mime codec not supported");
-            this.media_source.endOfStream();
-            return;
-        }
-
-        // add source buffer to media source of this slide
-        let source_buffer = this.media_source.addSourceBuffer(mime_codec);
-        // source_buffer.mode = "sequence";
-
-        this.load(() => {
-            if (this.media_buffer == null) {
-                source_buffer.abort();
+        // when setting url to video element
+        this.media_source.onsourceopen = (_) => {
+            // check if MIME codec is supported
+            let mime_codec = 'video/mp4; codecs="avc1.64002A"';
+            if (!("MediaSource" in window) || !MediaSource.isTypeSupported(mime_codec)) {
+                console.error("MediaSource or mime codec not supported");
+                this.media_source.endOfStream();
                 return;
             }
-            // success
+
+            // add source buffer to media source of this slide
+            let source_buffer = this.media_source.addSourceBuffer(mime_codec);
+
             // set callbacks
-            source_buffer.onupdateend = (ev: Event) => {
+            source_buffer.onupdateend = (_) => {
                 this.media_source.endOfStream();
             };
-            source_buffer.onerror = (ev: Event) => {
+            source_buffer.onerror = (_) => {
                 console.error("Failed to append buffer to source buffer:");
                 console.error(this.media_source);
             };
-            source_buffer.onabort = (ev: Event) => {
+            source_buffer.onabort = (_) => {
                 console.error("Aborted source buffer:");
                 console.error(this.media_source);
             };
 
-            source_buffer.appendBuffer(this.media_buffer);
-        }, () => {
-            // failure
-            source_buffer.abort();
-        });
-    }
-
-    get_media_source(): MediaSource {
-        return this.media_source;
+            this.load(() => {
+                if (this.media_buffer == null) {
+                    source_buffer.abort();
+                    return;
+                }
+                // success
+                source_buffer.appendBuffer(this.media_buffer);
+            }, () => {
+                // failure
+                source_buffer.abort();
+            });
+        }
     }
 
     load(
         on_loaded: (() => void) | null = null,
         on_failed: (() => void) | null = null
     ): void {
-        if (this.media_buffer != null) {
-            console.error("Trying to load already loaded slide.");
+        if (this.media_buffer !== null) {
             if (on_loaded !== null)
                 on_loaded();
             return;
@@ -84,41 +77,32 @@ class BufferSlide extends Slide {
     unload(): void {
         this.media_buffer = null;
     }
+
+    override get_src_url(): string {
+        return URL.createObjectURL(this.media_source);
+    }
 }
 
 export class BufferPresentation extends Presentation {
     video_element: HTMLVideoElement | null = null;
     slides: BufferSlide[] = [];
-    // used for complete loop slides
-    loaded = false;
-    slides_to_auto_load = 5;
-    slides_to_keep = 2;
+    // when both 0, only current slide will be buffered
+    slides_to_auto_load = 1;
+    slides_to_keep = 1;
 
     // update currently playing video according to current_slide
     update_video(): void {
-        // load next slides based on this.slides_to_auto_load
-        for (let i = 0, len = Math.min(this.slides_to_auto_load, this.slides.length - this.current_slide); i < len; ++i)
-            this.slides[this.current_slide + i].load();
-        // unload previous slides based on this.slides_to_keep
+        // load next slides
+        for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i) {
+            console.log(i);
+            this.slides[i].load();
+        }
+        // unload previous slides
         for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
             this.slides[i].unload();
 
-        // if current slide is non existent, set video element to empty video
-        if (this.current_slide < 0 || this.current_slide >= this.slides.length) {
-            if (this.video_element != null) {
-                if (this.video_element.src.length != 0)
-                    URL.revokeObjectURL(this.video_element.src);
-                this.video_element.src = "";
-                this.video_element.currentTime = 0;
-                let promise = this.video_element.play();
-                // todo: fill with functionality or remove
-                if (promise !== undefined)
-                    promise.then(() => { }, () => { });
-            }
-        }
-
         // if current slide is different from previous slide, change video source to new slide
-        else if (this.current_slide != this.previous_slide) {
+        if (this.current_slide != this.previous_slide) {
             this.previous_slide = this.current_slide;
             let slide = this.slides[this.current_slide];
             if (this.video_element != null) {
@@ -127,10 +111,9 @@ export class BufferPresentation extends Presentation {
                 if (this.video_element.src.length != 0)
                     URL.revokeObjectURL(this.video_element.src);
                 // create new object url of slides media source
-                this.video_element.src = URL.createObjectURL(slide.get_media_source());
+                this.video_element.src = slide.get_src_url();
                 this.video_element.currentTime = 0;
                 let promise = this.video_element.play();
-                // todo: fill with functionality or remove
                 if (promise !== undefined)
                     promise.then(() => { }, () => { });
             }
@@ -141,7 +124,6 @@ export class BufferPresentation extends Presentation {
         else if (this.video_element != null) {
             this.video_element.currentTime = 0;
             let promise = this.video_element.play();
-            // todo: fill with functionality or remove
             if (promise !== undefined)
                 promise.then(() => { }, () => { });
         }
