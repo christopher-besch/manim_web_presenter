@@ -51,6 +51,13 @@ jobs:
         run: |
           manim example.py "-${{matrix.config.quality}}" --write_all
 
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: pages
+          folder: presentation
+
       - name: Prepare Upload
         run: |
           tar cfz ${{matrix.config.artifact}} presentation
@@ -60,4 +67,3 @@ jobs:
         with:
           path: ${{matrix.config.artifact}}
           name: ${{matrix.config.artifact}}
-
