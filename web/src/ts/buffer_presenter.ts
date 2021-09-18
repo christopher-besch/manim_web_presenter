@@ -102,8 +102,6 @@ export class BufferPresentation extends Presentation {
         // unload previous slides
         for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
             (this.slides[i] as BufferSlide).unload();
-
-        this.play_video();
     }
 
     override add_slide(slide: SlideJson): void {
