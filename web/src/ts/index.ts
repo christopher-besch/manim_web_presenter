@@ -19,8 +19,8 @@ function open_popup_video_viewer(): boolean {
     }
 }
 
-// let presentation = new BufferPresentation(5, 2);
-let presentation = new FallbackPresentation();
+let presentation = new BufferPresentation(5, 2);
+// let presentation = new FallbackPresentation();
 let popup_video_viewer: Window | null;
 
 let prev_key_codes = [
