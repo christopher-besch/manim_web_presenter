@@ -57,3 +57,9 @@ div.main div.controls {
     height: 180px;
     min-height: 180px;
 }
+
+.main-video {
+    position: absolute;
+    /* top: 0; */
+    /* left: 0 */
+}

@@ -88,14 +88,14 @@ export class BufferPresentation extends Presentation {
     slides_to_auto_load;
     slides_to_keep;
 
-    constructor(slides_to_auto_load: number, slides_to_keep: number) {
-        super();
+    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, slides_to_auto_load: number, slides_to_keep: number) {
+        super(video0, video1);
         this.slides_to_auto_load = slides_to_auto_load;
         this.slides_to_keep = slides_to_keep;
     }
 
     // update currently playing video according to current_slide
-    override update_video(): void {
+    override update_source(): void {
         // load next slides
         for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i)
             (this.slides[i] as BufferSlide).load();

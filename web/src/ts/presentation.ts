@@ -27,13 +27,21 @@ export function get_slide_type_from_string(str: string): SlideType {
 }
 
 export abstract class Presentation {
-    video_element: HTMLVideoElement | null = null;
+    // using two video elements for smooth transitions
+    video0: HTMLVideoElement;
+    video1: HTMLVideoElement;
+    current_video = 0;
+
     slides: Slide[] = [];
     current_slide = -1;
     next_slide = 0;
     previous_slide = -1;
 
-    load_slides(on_load: { (self: Presentation): void; }): void {
+    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement) {
+        this.video0 = video0;
+        this.video1 = video1;
+
+        // load_slides
         get_json("index.json", (response, success) => {
             if (!success) {
                 console.error(response);
@@ -47,65 +55,64 @@ export abstract class Presentation {
             for (let i = 0; i < slides.length; ++i)
                 this.add_slide(slides[i]);
             console.log(`All ${slides.length} slides have been parsed successfully.`)
-            on_load(this);
+
+            // set callback for when video has ended
+            let onended = (_: Event) => {
+                let cur_slide = this.slides[this.current_slide];
+                switch (cur_slide.type) {
+                    case SlideType.LOOP: // when current slide is a loop type restart from beginning
+                        this.update_video();
+                        break;
+                    case SlideType.COMPLETE_LOOP: // when current slide is complete loop and next slide has changed, go to next one
+                        this.current_slide = this.next_slide;
+                        this.update_video();
+                        break;
+                }
+            }
+
+            this.video0.onended = onended;
+            this.video1.onended = onended;
+
+            // start the action
+            this.play_slide(0);
         });
     }
 
-    update_video(): void { }
-
-    play_video(): void {
+    update_video(): void {
+        this.update_source();
         // if current slide is different from previous slide, change video source to new slide
         if (this.current_slide != this.previous_slide) {
+            // swap videos
             this.previous_slide = this.current_slide;
-            if (this.video_element != null) {
-                // revoke object url of video element if it exists
-                // this has to be done because the pointer thingy isn't deleted automatically
-                if (this.video_element.src.length != 0)
-                    URL.revokeObjectURL(this.video_element.src);
-                // create new object url of slides media source
-                this.video_element.src = this.slides[this.current_slide].get_src_url();
-                this.video_element.currentTime = 0;
-                let promise = this.video_element.play();
-                if (promise !== undefined)
-                    promise.then(() => { }, () => { });
-            }
-        }
+            let last_element = this.get_current_video();
+            this.current_video = this.current_video == 0 ? 1 : 0;
+            let next_element = this.get_current_video();
 
-        // if current slide didn't change, restart video
-        // -> used for loop slides
-        else if (this.video_element != null) {
-            this.video_element.currentTime = 0;
-            let promise = this.video_element.play();
-            if (promise !== undefined)
-                promise.then(() => { }, () => { });
+            // setup new vidoe
+            next_element.src = this.slides[this.current_slide].get_src_url();
+            next_element.style.visibility = "visible";
+            // hide old video once new one plays
+            next_element.play().then(() => {
+                last_element.style.visibility = "hidden";
+            });
+        }
+        else {
+            // if current slide didn't change, restart video
+            // -> used for loop slides
+            this.get_current_video().currentTime = 0;
+            this.get_current_video().play();
         }
     }
 
-    abstract add_slide(slide: SlideJson): void;
-
-    set_video_element(video_element: HTMLVideoElement): void {
-        this.video_element = video_element;
-
-        // attach an event to when the video has ended and update the video accordingly
-        this.video_element.onended = (ev: Event) => {
-            let cur_slide = this.slides[this.current_slide];
-            switch (cur_slide.type) {
-                case SlideType.LOOP: // when current slide is a loop type restart from beginning
-                    this.update_video();
-                    this.play_video();
-                    break;
-                case SlideType.COMPLETE_LOOP: // when current slide is complete loop and next slide has changed, go to next one
-                    this.current_slide = this.next_slide;
-                    this.update_video();
-                    this.play_video();
-                    break;
-            }
-        };
+    play_next_slide(): void {
+        this.play_slide(this.current_slide + 1);
     }
 
-    get_current_slide(): number { return this.current_slide; }
+    play_previous_slide(): void {
+        this.play_slide(this.current_slide - 1);
+    }
 
-    set_current_slide(slide: number): void {
+    play_slide(slide: number): void {
         if (slide < 0 || slide >= this.slides.length) {
             console.error(`Trying to switch to invalid slide #${slide}`)
             return;
@@ -120,17 +127,23 @@ export abstract class Presentation {
             this.next_slide = slide;
             this.current_slide = slide;
             this.update_video();
-            this.play_video();
         }
     }
 
-    play_next_slide(): void {
-        this.set_current_slide(this.current_slide + 1);
+    get_current_slide(): number { return this.current_slide; }
+
+    get_current_video(): HTMLVideoElement {
+        if (this.current_video == 0)
+            return this.video0;
+        else
+            return this.video1;
     }
 
-    play_previous_slide(): void {
-        this.set_current_slide(this.current_slide - 1);
-    }
+    abstract add_slide(slide: SlideJson): void;
+
+    // called in very beginning of play_video()
+    // to be overwritten if required
+    update_source(): void { }
 };
 
 export abstract class Slide {
