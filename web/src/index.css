@@ -1,65 +1,21 @@
-body {
-    margin: 0px;
-    background-color: black;
-    color: white;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-}
-
-body div.content {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-}
-
-div.side-bar {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 0;
-    width: 250px;
-    min-width: 250px;
-}
-
-div.side-bar div.timeline {
-    display: flex;
-    flex-grow: 1;
-}
-
-div.side-bar div.time-spent {
-    display: flex;
-    flex-grow: 0;
-    justify-content: right;
-}
-
-div.main {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-}
-
-div.main div.playback {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-    min-height: 0;
-}
-
-div.main div.playback video {
-    flex-grow: 1;
-    max-width: calc(100vw - 250px);
-}
-
-div.main div.controls {
-    display: flex;
-    flex-grow: 0;
-    justify-content: center;
-    height: 180px;
-    min-height: 180px;
+#videos-div {
+    position: relative;
 }
 
 .main-video {
+    top: 0;
+    left: 0;
+}
+
+:fullscreen {
+    cursor: none;
+}
+
+/* second video overlaps first -> size of videos is still respected */
+#video0 {
+    position: relative;
+}
+
+#video1 {
     position: absolute;
-    /* top: 0; */
-    /* left: 0 */
 }

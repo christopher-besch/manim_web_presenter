@@ -1,5 +1,5 @@
 import "../index.css";
-import { SlideJson, Presentation, Slide } from "./presentation";
+import { SlideJson, Presentation, Slide } from "./presenter";
 
 class FallbackSlide extends Slide {
     override get_src_url(): string {
