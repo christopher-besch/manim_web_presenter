@@ -114,7 +114,7 @@ class RawPresentation:
             presentation_index.append(presentation_name)
         with open(presentation_index_path, "w", encoding="utf-8") as file:
             json.dump(presentation_index, file)
-        shutil.copyfile(os.path.join(self.web_folder, "menu.html"), os.path.join(GLOBAL_OUTPUT_FOLDER, "menu.html"))
+        shutil.copyfile(os.path.join(self.web_folder, "menu.html"), os.path.join(GLOBAL_OUTPUT_FOLDER, "index.html"))
 
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, presentation_name)
         # contain everything required to play this presentation including video files

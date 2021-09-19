@@ -1,7 +1,7 @@
 import { get_json } from "./utils";
 
 document.body.onload = () => {
-    get_json("../presentation_index.json", (response, success) => {
+    get_json("./presentation_index.json", (response, success) => {
         if (!success)
             console.error("Failed to download 'presentation_index.json'");
         let presentations = response as string[];
