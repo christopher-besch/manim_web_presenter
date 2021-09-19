@@ -30,6 +30,10 @@ module.exports = (env) => {
                     loader: "css-loader"
                 }],
                 include: [path.resolve(__dirname, "src")],
+            }, {
+                test: /\.(png|svg|jpg|jpeg|gif)$/i,
+                type: 'asset/inline',
+                include: [path.resolve(__dirname, "src")],
             }],
         },
         resolve: {

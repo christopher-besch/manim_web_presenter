@@ -1,4 +1,7 @@
 import "../index.css";
+import previous_icon from "../icons/navigate_before_black_24dp.svg";
+import next_icon from "../icons/navigate_next_black_24dp.svg";
+import fullscreen_icon from "../icons/fullscreen_black_24dp.svg";
 
 import { BufferPresentation } from "./buffer_presenter";
 import { FallbackPresentation } from "./fallback_presenter";
@@ -20,17 +23,33 @@ import { FallbackPresentation } from "./fallback_presenter";
 
 // let popup_video_viewer: Window | null;
 
+// according to KeyboardEvent.code on: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
 let prev_keys = [
     "ArrowLeft",
+    "ArrowDown",
+    "PageDown",
+    "Backspace",
 ];
 let next_keys = [
     "ArrowRight",
+    "ArrowUp",
+    "PageUp",
+    "Enter",
 ];
 let fullscreen_keys = [
-    "f"
+    "KeyF",
 ];
 
 document.body.onload = () => {
+    let previous_button = document.getElementById("play-previous-slide") as HTMLButtonElement;
+    let next_button = document.getElementById("play-next-slide") as HTMLButtonElement;
+    let fullscreen_button = document.getElementById("enter-fullscreen") as HTMLButtonElement;
+
+    // set icons
+    previous_button.getElementsByTagName("img")[0].src = previous_icon;
+    next_button.getElementsByTagName("img")[0].src = next_icon;
+    fullscreen_button.getElementsByTagName("img")[0].src = fullscreen_icon;
+
     let video0 = document.getElementById("video0") as HTMLVideoElement;
     let video1 = document.getElementById("video1") as HTMLVideoElement;
     let videos_div = document.getElementById("videos-div") as HTMLDivElement;
@@ -43,11 +62,15 @@ document.body.onload = () => {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
         if (e.repeat)
             return;
-        if (prev_keys.includes(e.key))
+        if (prev_keys.includes(e.code))
             presentation.play_previous_slide();
-        else if (next_keys.includes(e.key))
+        else if (next_keys.includes(e.code))
             presentation.play_next_slide();
-        else if (fullscreen_keys.includes(e.key))
+        else if (fullscreen_keys.includes(e.code))
             presentation.toggle_fullscreen();
     });
+
+    previous_button.addEventListener("click", presentation.play_previous_slide.bind(presentation));
+    next_button.addEventListener("click", presentation.play_next_slide.bind(presentation));
+    fullscreen_button.addEventListener("click", presentation.enter_fullscreen.bind(presentation));
 }
