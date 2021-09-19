@@ -12,7 +12,7 @@ Web Presentation using Manim
 - Install required python modules: `pip3 install -r requirements.txt`
 - Install npm devDependencies: go into `web` directory and run `npm install`
 
-### Compile
+### Compilation
 
 - Go into `web` directory and run `npm run build_debug` or `npm run build_release`
 
