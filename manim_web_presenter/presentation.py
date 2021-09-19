@@ -98,9 +98,23 @@ class RawPresentation:
         if not os.path.exists(GLOBAL_OUTPUT_FOLDER):
             os.mkdir(GLOBAL_OUTPUT_FOLDER)
 
+        self.web_folder = os.path.join(FILE_DIR_PATH, "web")
+
         presentation_name = type(owner).__name__
         if presentation_name == "tmp":
             raise RuntimeError("The Presentation can't be called 'tmp'")
+
+        # update presentation index
+        presentation_index_path = os.path.join(GLOBAL_OUTPUT_FOLDER, "presentation_index.json")
+        presentation_index: List[str] = []
+        if os.path.exists(presentation_index_path):
+            with open(presentation_index_path, "r", encoding="utf-8") as file:
+                presentation_index = json.load(file)
+        if presentation_name not in presentation_index:
+            presentation_index.append(presentation_name)
+        with open(presentation_index_path, "w", encoding="utf-8") as file:
+            json.dump(presentation_index, file)
+        shutil.copyfile(os.path.join(self.web_folder, "menu.html"), os.path.join(GLOBAL_OUTPUT_FOLDER, "menu.html"))
 
         self.output_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, presentation_name)
         # contain everything required to play this presentation including video files
@@ -195,14 +209,13 @@ class RawPresentation:
             }, file)
 
         # copy and configure web site over
-        web_folder = os.path.join(FILE_DIR_PATH, "web")
         web_files = [
             "index.html",
             "video_viewer.html"
         ]
         for file in web_files:
-            shutil.copyfile(os.path.join(web_folder, file), os.path.join(self.output_folder, file))
-        write_template(os.path.join(web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), slides=self.slides)
+            shutil.copyfile(os.path.join(self.web_folder, file), os.path.join(self.output_folder, file))
+        write_template(os.path.join(self.web_folder, "fallback.html"), os.path.join(self.output_folder, "fallback.html"), slides=self.slides)
 
 
 #####################
