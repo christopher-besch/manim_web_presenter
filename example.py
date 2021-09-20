@@ -60,3 +60,10 @@ class BraceAnnotation(Presentation):
         self.wait()
         self.play(FadeOut(line, dot, dot2, b1, b2, b1text, b2text))
         self.wait()
+
+
+class Test(Presentation):
+    def construct(self):
+        s = Square()
+        self.add(s)
+        self.wait()

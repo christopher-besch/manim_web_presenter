@@ -55,29 +55,6 @@ export abstract class Presentation {
         this.normal_height = video0.height;
         console.log(`Loading presentation with normal video size: ${this.normal_width} by ${this.normal_height}`);
 
-        this.videos_div.onfullscreenchange = () => {
-            if (this.fullscreen_status()) {
-                console.log("Entering fullscreen");
-                // ensure that fullscreen has been loaded
-                setTimeout(() => {
-                    let width = window.screen.width;
-                    let height = window.screen.height;
-                    console.log(`Setting video size to: ${width} ${height}`);
-                    this.video0.width = width;
-                    this.video1.width = width;
-                    this.video0.height = height;
-                    this.video1.height = height;
-                }, 10);
-            }
-            else {
-                console.log("Exiting fullscreen");
-                this.video0.width = this.normal_width;
-                this.video1.width = this.normal_width;
-                this.video0.height = this.normal_height;
-                this.video1.height = this.normal_height;
-            }
-        }
-
         // load_slides
         get_json("index.json", (response, success) => {
             if (!success) {
