@@ -11,6 +11,7 @@ class MovingGroupToTarget(Presentation):
         )
         target = Dot([4, 3, 0], color=YELLOW)
         self.add(group, target)
+        self.wait()
         self.next_skip_slide()
         self.play(group.animate.shift(target.get_center() - group[2].get_center()))
         self.next_complete_loop_slide()
