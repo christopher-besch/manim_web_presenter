@@ -136,6 +136,8 @@ export abstract class Presentation {
             console.log(`Playing slide '${this.slides[this.current_slide].name}'`)
             // hide old video once new one plays
             next_element.play().then(() => {
+                // pause old video to not call onended callback again when that video ends in the background
+                last_element.pause();
                 last_element.style.visibility = "hidden";
             });
         }
