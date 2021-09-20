@@ -35,9 +35,6 @@ export abstract class Presentation {
     video0: HTMLVideoElement;
     video1: HTMLVideoElement;
     videos_div: HTMLDivElement;
-    // size without fullscreen
-    normal_width: number;
-    normal_height: number;
     // gets flipped when displaying first video
     // -> required for css to be correct
     current_video = 1;
@@ -51,9 +48,18 @@ export abstract class Presentation {
         this.video0 = video0;
         this.video1 = video1;
         this.videos_div = videos_div;
-        this.normal_width = video0.width;
-        this.normal_height = video0.height;
-        console.log(`Loading presentation with normal video size: ${this.normal_width} by ${this.normal_height}`);
+
+        // no focus indicator
+        this.videos_div.addEventListener("focusin", (_) => {
+            console.log("in");
+            this.video0.style.border = "0px solid red";
+            this.video1.style.border = "0px solid red";
+        });
+        this.videos_div.addEventListener("focusout", (_) => {
+            console.log("out");
+            this.video0.style.border = "20px solid red";
+            this.video1.style.border = "20px solid red";
+        });
 
         // load_slides
         get_json("index.json", (response, success) => {
