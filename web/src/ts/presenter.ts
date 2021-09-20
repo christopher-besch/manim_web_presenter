@@ -58,12 +58,15 @@ export abstract class Presentation {
         this.videos_div.onfullscreenchange = () => {
             if (this.fullscreen_status()) {
                 console.log("Entering fullscreen");
-                let width = window.screen.availWidth;
-                let height = window.screen.availHeight;
-                this.video0.width = width;
-                this.video1.width = width;
-                this.video0.height = height;
-                this.video1.height = height;
+                setTimeout(() => {
+                    let width = window.screen.width;
+                    let height = window.screen.height;
+                    console.log(`Setting video size to: ${width} ${height}`);
+                    this.video0.width = width;
+                    this.video1.width = width;
+                    this.video0.height = height;
+                    this.video1.height = height;
+                }, 10);
             }
             else {
                 console.log("Exiting fullscreen");

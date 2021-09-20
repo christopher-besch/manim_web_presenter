@@ -35,6 +35,7 @@ let next_keys = [
     "ArrowUp",
     "PageUp",
     "Enter",
+    "Space",
 ];
 let fullscreen_keys = [
     "KeyF",
