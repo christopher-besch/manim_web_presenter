@@ -58,6 +58,7 @@ export abstract class Presentation {
         this.videos_div.onfullscreenchange = () => {
             if (this.fullscreen_status()) {
                 console.log("Entering fullscreen");
+                // ensure that fullscreen has been loaded
                 setTimeout(() => {
                     let width = window.screen.width;
                     let height = window.screen.height;
