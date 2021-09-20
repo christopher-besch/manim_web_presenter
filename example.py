@@ -47,7 +47,7 @@ class BraceAnnotation(Presentation):
         def update_b2text():
             return b2.get_tex(r"x-x_0")
         b2text = always_redraw(update_b2text)
-        self.add(line, dot, dot2, b1, b2, b1text, b2text)
+        self.play(FadeIn(line, dot, dot2, b1, b2, b1text, b2text))
         self.wait()
         self.next_normal_slide()
         self.play(scale_tracker.animate.set_value(1), run_time=3, rate_func=rate_functions.ease_in_out_sine)
