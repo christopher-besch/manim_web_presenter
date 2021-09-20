@@ -16,6 +16,7 @@ export type SlideJson = {
 export enum SlideType {
     NORMAL,
     LOOP,
+    SKIP,
     COMPLETE_LOOP
 }
 
@@ -23,6 +24,7 @@ export function get_slide_type_from_string(str: string): SlideType {
     switch (str) {
         case "normal": return SlideType.NORMAL;
         case "loop": return SlideType.LOOP;
+        case "skip": return SlideType.SKIP;
         case "complete_loop": return SlideType.COMPLETE_LOOP;
         default: return SlideType.NORMAL;
     }
@@ -91,10 +93,19 @@ export abstract class Presentation {
             let onended = (_: Event) => {
                 let cur_slide = this.slides[this.current_slide];
                 switch (cur_slide.type) {
-                    case SlideType.LOOP: // when current slide is a loop type restart from beginning
+                    case SlideType.LOOP:
+                        // restart from beginning
                         this.update_video();
                         break;
-                    case SlideType.COMPLETE_LOOP: // when current slide is complete loop and next slide has changed, go to next one
+                    case SlideType.SKIP:
+                        // immediately go to next slide without user input
+                        ++this.current_slide;
+                        this.next_slide = this.current_slide;
+                        this.update_video();
+                        break;
+                    case SlideType.COMPLETE_LOOP:
+                        // when next slide has changed, go to next one
+                        // otherwise restart
                         this.current_slide = this.next_slide;
                         this.update_video();
                         break;
@@ -119,9 +130,10 @@ export abstract class Presentation {
             this.current_video = this.current_video == 0 ? 1 : 0;
             let next_element = this.get_current_video();
 
-            // setup new vidoe
+            // double buffering: setup new video
             next_element.src = this.slides[this.current_slide].get_src_url();
             next_element.style.visibility = "visible";
+            console.log(`Playing slide '${this.slides[this.current_slide].name}'`)
             // hide old video once new one plays
             next_element.play().then(() => {
                 last_element.style.visibility = "hidden";
@@ -130,6 +142,7 @@ export abstract class Presentation {
         else {
             // if current slide didn't change, restart video
             // -> used for loop slides
+            console.log(`Replaying slide '${this.slides[this.current_slide].name}'`)
             this.get_current_video().currentTime = 0;
             this.get_current_video().play();
         }
@@ -146,10 +159,10 @@ export abstract class Presentation {
 
     play_slide(slide: number, skip_complete_loop = false): void {
         if (slide < 0 || slide >= this.slides.length) {
-            console.error(`Trying to switch to invalid slide #${slide}`)
+            console.error(`Trying to switch to invalid slide number #${slide}`)
             return;
         } else
-            console.log(`Switching to slide #${slide}`)
+            console.log(`Switching to slide '${this.slides[slide].name}'`)
 
         if (this.current_slide != -1 && this.slides[this.current_slide].type == SlideType.COMPLETE_LOOP && !skip_complete_loop) {
             // if current slide is complete loop, wait until slide finishes

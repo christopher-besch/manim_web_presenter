@@ -79,7 +79,7 @@ class Slide:
         }
 
     def __repr__(self):
-        return f"<Slide '{self.name}' from {self.first_animation} to {self.after_last_animation}>"
+        return f"<Slide '{self.name}' from {self.first_animation} to {self.after_last_animation}, stored in '{self.video}'>"
 
 
 # contain all presentation functionality
@@ -123,15 +123,18 @@ class RawPresentation:
         os.mkdir(self.output_folder)
 
         self.tmp_folder = os.path.join(GLOBAL_OUTPUT_FOLDER, "tmp")
-        if os.path.exists(self.tmp_folder):
-            shutil.rmtree(self.tmp_folder)
-        os.mkdir(self.tmp_folder)
+        self.recreate_tmp_folder()
 
         # stores intel about how to present slides
         self.index_file = os.path.join(self.output_folder, "index.json")
 
         # first slide can be replaced with a loop <- immediately gets deleted when creating a new slide
         self.next_slide("normal", None)
+
+    def recreate_tmp_folder(self) -> None:
+        if os.path.exists(self.tmp_folder):
+            shutil.rmtree(self.tmp_folder)
+        os.mkdir(self.tmp_folder)
 
     def play(self, *args, **kwargs):
         self.parent.play(*args, **kwargs)
@@ -157,6 +160,7 @@ class RawPresentation:
     def tear_down(self, *args, **kwargs):
         self.finish_last_slide()
         assert len(self.slides) != 0, "The presentation doesn't contain any animations."
+        assert self.slides[-1].slide_type != "skip", "The presentation can't end with a skip slide; there's nothing to skip to."
         self.parent.tear_down(*args, **kwargs)
 
     # copy animations into tmp folder and concatenate into single file

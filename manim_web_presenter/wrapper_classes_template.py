@@ -24,6 +24,12 @@ class {{inheritor.presenter_name}}(manim.{{inheritor.manim_name}}):
         """
         self.raw_presentation.next_slide("loop", name)
 
+    def next_skip_slide(self, name: Optional[str] = None):
+        """
+        slide that continues to next slide without any user input
+        """
+        self.raw_presentation.next_slide("skip", name)
+
     def next_complete_loop_slide(self, name: Optional[str] = None):
         """
         end last slide and start new loop slide
