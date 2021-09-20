@@ -1,7 +1,7 @@
 from manim_web_presenter import *
 
 
-class MovingGroupToTarget(Presentation):
+class BraceAnnotation(Presentation):
     def construct(self):
         group = VGroup(
             Dot(LEFT),
@@ -20,3 +20,43 @@ class MovingGroupToTarget(Presentation):
         self.play(group.animate.shift(LEFT))
         self.next_normal_slide()
         self.play(FadeOut(group, target))
+        scale_tracker = ValueTracker(0.5)
+
+        dot = Dot([-6, -2, 0])
+
+        def update_dot():
+            return Dot(dot.get_center() + scale_tracker.get_value() * np.array([4, 2, 0]))
+        dot2 = always_redraw(update_dot)
+
+        def update_line():
+            return Line(dot.get_center(), dot2.get_center()).set_color(ORANGE)
+        line = always_redraw(update_line)
+
+        def update_b1():
+            return Brace(line)
+        b1 = always_redraw(update_b1)
+
+        def update_b1text():
+            return b1.get_tex(r"\text{scale} s =", "{:.2f}".format(scale_tracker.get_value()))
+        b1text = always_redraw(update_b1text)
+
+        def update_b2():
+            return Brace(line, direction=line.copy().rotate(PI / 2).get_unit_vector())
+        b2 = always_redraw(update_b2)
+
+        def update_b2text():
+            return b2.get_tex(r"x-x_0")
+        b2text = always_redraw(update_b2text)
+        self.add(line, dot, dot2, b1, b2, b1text, b2text)
+        self.wait()
+        self.next_normal_slide()
+        self.play(scale_tracker.animate.set_value(1), run_time=3, rate_func=rate_functions.ease_in_out_sine)
+        self.next_normal_slide()
+        self.play(scale_tracker.animate.set_value(2), run_time=3, rate_func=rate_functions.ease_in_out_sine)
+        self.next_normal_slide()
+        self.play(scale_tracker.animate.set_value(2.5), run_time=3, rate_func=rate_functions.ease_in_out_sine)
+        self.next_normal_slide()
+        self.play(scale_tracker.animate.set_value(1), run_time=3, rate_func=rate_functions.ease_in_out_sine)
+        self.wait()
+        self.play(FadeOut(line, dot, dot2, b1, b2, b1text, b2text))
+        self.wait()
