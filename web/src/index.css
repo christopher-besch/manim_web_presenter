@@ -5,7 +5,8 @@
 .main-video {
     top: 0;
     left: 0;
-    border: 20px solid red;
+    /* todo: doesn't work on chrome */
+    /* border: 20px solid red; */
 }
 
 :fullscreen {

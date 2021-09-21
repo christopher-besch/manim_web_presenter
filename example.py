@@ -1,6 +1,17 @@
 from manim_web_presenter import *
 
 
+class Gallery(Presentation):
+    def construct(self):
+        text = VGroup(
+            Text("Manim CE Web Presenter", font_size=48),
+            Text("As you can see,\n"),
+        ).arrange(DOWN)
+        self.play(Write(text))
+
+        self.next_normal_slide()
+
+
 class BraceAnnotation(Presentation):
     def construct(self):
         group = VGroup(

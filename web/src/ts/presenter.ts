@@ -50,16 +50,17 @@ export abstract class Presentation {
         this.videos_div = videos_div;
 
         // no focus indicator
-        this.videos_div.addEventListener("focusin", (_) => {
-            console.log("in");
-            this.video0.style.border = "0px solid red";
-            this.video1.style.border = "0px solid red";
-        });
-        this.videos_div.addEventListener("focusout", (_) => {
-            console.log("out");
-            this.video0.style.border = "20px solid red";
-            this.video1.style.border = "20px solid red";
-        });
+        // todo: broken on Chrome
+        // this.videos_div.addEventListener("focusin", (_) => {
+        //     console.log("in");
+        //     this.video0.style.border = "0px solid red";
+        //     this.video1.style.border = "0px solid red";
+        // });
+        // this.videos_div.addEventListener("focusout", (_) => {
+        //     console.log("out");
+        //     this.video0.style.border = "20px solid red";
+        //     this.video1.style.border = "20px solid red";
+        // });
 
         // load_slides
         get_json("index.json", (response, success) => {
