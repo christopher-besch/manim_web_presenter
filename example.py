@@ -6,6 +6,7 @@ class Tutorial(Presentation):
         #########
         # title #
         #########
+        self.next_normal_slide("title")
         banner = ManimBanner()
         self.play(banner.create())
         self.play(banner.expand())
@@ -27,7 +28,7 @@ class Tutorial(Presentation):
         ################
         # normal slide #
         ################
-        self.next_normal_slide()
+        self.next_normal_slide("normal slide")
         self.remove(title, title_ul, text)
 
         dot = Dot([-4, -2, 0]).scale(3)
@@ -45,7 +46,7 @@ class Tutorial(Presentation):
         ################
         # back in time #
         ################
-        self.next_normal_slide()
+        self.next_normal_slide("back in time")
         self.remove(text)
 
         text = VGroup(
@@ -62,7 +63,7 @@ class Tutorial(Presentation):
         ##############
         # fullscreen #
         ##############
-        self.next_normal_slide()
+        self.next_normal_slide("fullscreen")
         self.remove(text)
 
         text = VGroup(
@@ -76,7 +77,7 @@ class Tutorial(Presentation):
         ####################
         # loop slide intro #
         ####################
-        self.next_normal_slide()
+        self.next_normal_slide("loop slide intro")
         self.remove(text)
 
         text = VGroup(
@@ -91,7 +92,7 @@ class Tutorial(Presentation):
         ##############
         # loop slide #
         ##############
-        self.next_loop_slide()
+        self.next_loop_slide("loop slide")
         self.remove(text)
 
         text = VGroup(
@@ -114,7 +115,7 @@ class Tutorial(Presentation):
         ####################
         # skip slide intro #
         ####################
-        self.next_normal_slide()
+        self.next_normal_slide("skip slide intro")
         self.remove(text, dot, line, circle)
 
         text = VGroup(
@@ -131,7 +132,7 @@ class Tutorial(Presentation):
         ##############
         # skip slide #
         ##############
-        self.next_skip_slide()
+        self.next_skip_slide("skip slide")
         self.remove(text)
 
         text = VGroup(
@@ -149,13 +150,13 @@ class Tutorial(Presentation):
         self.play(GrowFromCenter(circle))
         self.play(dot.animate.shift(RIGHT))
 
-        self.next_loop_slide()
+        self.next_loop_slide("loop slide after skip slide")
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
         #########################
         # animation fucked again#
         #########################
-        self.next_normal_slide()
+        self.next_normal_slide("animation fucked again")
         self.remove(text)
 
         text = VGroup(
@@ -169,10 +170,10 @@ class Tutorial(Presentation):
         self.play(Write(text), Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
         self.wait()
 
-        #######################
-        # complete loop intro #
-        #######################
-        self.next_normal_slide()
+        #############################
+        # complete loop slide intro #
+        #############################
+        self.next_normal_slide("complete loop slide intro")
         self.remove(text, dot, circle, line)
 
         text = VGroup(
@@ -190,7 +191,7 @@ class Tutorial(Presentation):
         #######################
         # complete loop slide #
         #######################
-        self.next_skip_slide()
+        self.next_skip_slide("before complete loop slide")
         self.remove(text)
 
         text = VGroup(
@@ -204,17 +205,17 @@ class Tutorial(Presentation):
         self.play(Write(text), GrowFromCenter(circle))
         self.play(dot.animate.shift(RIGHT))
 
-        self.next_complete_loop_slide()
+        self.next_complete_loop_slide("complete loop slide")
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
-        self.next_normal_slide()
+        self.next_normal_slide("after complete loop slide")
         self.play(Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
         self.wait()
 
         ##########
         # ending #
         ##########
-        self.next_normal_slide()
+        self.next_normal_slide("active development")
         self.remove(text, dot, circle, line)
 
         text = VGroup(
@@ -227,7 +228,7 @@ class Tutorial(Presentation):
         self.play(Write(text))
         self.wait()
 
-        self.next_normal_slide()
+        self.next_normal_slide("ending")
         self.remove(text)
 
         text = VGroup(
@@ -247,7 +248,7 @@ class Tutorial(Presentation):
         ############
         # fade out #
         ############
-        self.next_normal_slide()
+        self.next_normal_slide("heli flying into the sunset; fade out")
         self.play(Unwrite(text), Unwrite(end), Unwrite(end_ul))
         self.wait()
 
