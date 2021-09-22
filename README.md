@@ -5,7 +5,7 @@
 
 Web Presentation using Manim
 
-## [Tutorial](https://christopher-besch.github.io/manim_web_presenter/Tutorial).
+## [Tutorial](https://christopher-besch.github.io/manim_web_presenter/Tutorial)
 
 ## Manim Wrapper
 
