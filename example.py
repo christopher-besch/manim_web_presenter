@@ -1,6 +1,16 @@
 from manim_web_presenter import *
 
 
+# showcase of issue #39
+class Rotation(Presentation):
+    def construct(self):
+        circle = Circle()
+        dot = Dot([1, 0, 0])
+        self.next_loop_slide()
+        self.add(circle, dot)
+        self.play(MoveAlongPath(dot, circle), rate_func=linear)
+
+
 class Tutorial(Presentation):
     def construct(self):
         #########
@@ -110,7 +120,7 @@ class Tutorial(Presentation):
 
         self.play(GrowFromCenter(circle))
         self.play(dot.animate.shift(RIGHT))
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.play(MoveAlongPath(dot, circle), run_time=2)
 
         ####################
         # skip slide intro #
@@ -126,7 +136,7 @@ class Tutorial(Presentation):
             Text("Smooth transitions look different!"),
             Text("Let me show you how it's done."),
         ).arrange(DOWN)
-        self.play(Write(text))
+        self.play(Write(text), run_time=0.5)
         self.wait()
 
         ##############
@@ -143,7 +153,7 @@ class Tutorial(Presentation):
             Text("once it's finished."),
         ).arrange(DOWN).shift(1.5*UP)
 
-        self.play(Write(text))
+        self.play(Write(text), run_time=0.5)
 
         dot.move_to([0, -2, 0])
         self.add(line)
@@ -151,7 +161,7 @@ class Tutorial(Presentation):
         self.play(dot.animate.shift(RIGHT))
 
         self.next_loop_slide("loop slide after skip slide")
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.play(MoveAlongPath(dot, circle), run_time=2)
 
         #########################
         # animation fucked again#
@@ -185,7 +195,7 @@ class Tutorial(Presentation):
             Text("slide finishes before continuing."),
             Text("Third time's the charm:"),
         ).arrange(DOWN)
-        self.play(Write(text))
+        self.play(Write(text), run_time=0.5)
         self.wait()
 
         #######################
@@ -202,11 +212,11 @@ class Tutorial(Presentation):
 
         dot.move_to([0, -2, 0])
         self.add(line)
-        self.play(Write(text), GrowFromCenter(circle))
+        self.play(Write(text), GrowFromCenter(circle), run_time=0.5)
         self.play(dot.animate.shift(RIGHT))
 
         self.next_complete_loop_slide("complete loop slide")
-        self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
+        self.play(MoveAlongPath(dot, circle), run_time=2)
 
         self.next_normal_slide("after complete loop slide")
         self.play(Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
@@ -222,10 +232,10 @@ class Tutorial(Presentation):
             Text("This project is still under"),
             Text("active development."),
             Text("If you encounter any problems"),
-            Text("or have any good ideas,"),
+            Text("or have good ideas for new features,"),
             MarkupText("please open an <b>Issue on GitHub</b>."),
         ).arrange(DOWN)
-        self.play(Write(text))
+        self.play(Write(text), run_time=0.5)
         self.wait()
 
         self.next_normal_slide("ending")
@@ -239,10 +249,10 @@ class Tutorial(Presentation):
         ).arrange(DOWN).shift(1*DOWN)
         end = Text("The End", font_size=60).shift(2*UP)
         end_ul = Underline(end)
-        self.play(Write(text))
+        self.play(Write(text), run_time=0.5)
         self.wait()
-        self.play(Write(end))
-        self.play(Write(end_ul))
+        self.play(Write(end), run_time=0.5)
+        self.play(Write(end_ul), run_time=0.5)
         self.wait()
 
         ############

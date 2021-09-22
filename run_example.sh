@@ -21,7 +21,7 @@ fi
 
 echo "> Build Mode: $build_mode_p"
 
-# npm run "$build_mode"
+npm run "$build_mode"
 echo ".----------------------."
 echo "|   Finished building  |"
 echo "|                      |"
