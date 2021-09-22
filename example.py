@@ -159,11 +159,11 @@ class Tutorial(Presentation):
         self.remove(text)
 
         text = VGroup(
-            Text("Let's finish the animation."),
-            Text("Here we encounter another problem:"),
-            Text("The loop immediately cuts when"),
-            Text("progressing to the next slide. You didn't"),
-            Text("see it? Go back in time and try again."),
+            Text("Let's finish the animation. Here we"),
+            Text("encounter another problem: The dot"),
+            Text("teleports when progressing to the"),
+            Text("next slide. You didn't see it?"),
+            Text("Go back in time and try again."),
         ).arrange(DOWN).shift(1.5*UP)
 
         self.play(Write(text), Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
@@ -211,8 +211,44 @@ class Tutorial(Presentation):
         self.play(Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
         self.wait()
 
+        ##########
+        # ending #
+        ##########
         self.next_normal_slide()
         self.remove(text, dot, circle, line)
+
+        text = VGroup(
+            Text("This project is still under"),
+            Text("active development."),
+            Text("If you encounter any problems"),
+            Text("or have any good ideas,"),
+            MarkupText("please open an <b>Issue on GitHub</b>."),
+        ).arrange(DOWN)
+        self.play(Write(text))
+        self.wait()
+
+        self.next_normal_slide()
+        self.remove(text)
+
+        text = VGroup(
+            Text("You can find the code here:"),
+            Text("github.com/christopher-besch/"),
+            Text("manim_web_presenter"),
+            Text("And as always, thanks for watching!"),
+        ).arrange(DOWN).shift(1*DOWN)
+        end = Text("The End", font_size=60).shift(2*UP)
+        end_ul = Underline(end)
+        self.play(Write(text))
+        self.wait()
+        self.play(Write(end))
+        self.play(Write(end_ul))
+        self.wait()
+
+        ############
+        # fade out #
+        ############
+        self.next_normal_slide()
+        self.play(Unwrite(text), Unwrite(end), Unwrite(end_ul))
         self.wait()
 
         # https://ia600803.us.archive.org/29/items/MacArthur_Foundation_100andChange_dQw4w9WgXcQ/Rick_Astley_-_Never_Gonna_Give_You_Up_dQw4w9WgXcQ.mp4
