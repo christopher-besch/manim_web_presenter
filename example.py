@@ -84,7 +84,7 @@ class Tutorial(Presentation):
             Text("Let's do something different now."),
             Text("What follows is an animation from the"),
             Text("Manim CE Gallery"),
-            Text("that I ruthlessly copied :)"),
+            Text("that I ruthlessly stole :)"),
         ).arrange(DOWN)
         self.play(Write(text), run_time=0.5)
         self.wait()
