@@ -53,7 +53,7 @@ The wrappers are aiming to be a drop-in replacement for the scene classes, but t
 ## Output Folder Structure
 
 The normal Manim output stays untouched.
-A new folder `presentaion` will be created which provides shelter for one folder for each Presentation you've defined.
+A new folder `presentaion` will be created, which provides shelter for one folder for each Presentation you've defined.
 These folders contain:
 -   the entire movie file,
 -   all of the videos for each slide,
