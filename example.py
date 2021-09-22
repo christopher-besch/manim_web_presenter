@@ -3,6 +3,15 @@ from manim_web_presenter import *
 
 class Tutorial(Presentation):
     def construct(self):
+        #########
+        # title #
+        #########
+        banner = ManimBanner()
+        self.play(banner.create())
+        self.play(banner.expand())
+        self.wait()
+        self.play(Unwrite(banner))
+
         title = Text("Manim CE Web Presenter", font_size=60).shift(2*UP)
         title_ul = Underline(title)
         self.play(Write(title), run_time=0.5)
@@ -15,6 +24,9 @@ class Tutorial(Presentation):
         self.play(Write(text), Write(title_ul), run_time=0.5)
         self.wait()
 
+        ################
+        # normal slide #
+        ################
         self.next_normal_slide()
         self.remove(title, title_ul, text)
 
@@ -28,7 +40,11 @@ class Tutorial(Presentation):
         ).arrange(DOWN).shift(UP)
         self.play(FadeIn(dot), Write(text), run_time=0.5)
         self.play(dot.animate.shift(8*RIGHT), run_time=2)
+        self.wait()
 
+        ################
+        # back in time #
+        ################
         self.next_normal_slide()
         self.remove(text)
 
@@ -36,10 +52,30 @@ class Tutorial(Presentation):
             Text("You can go back in time as well. Try it!"),
             Text("Don't expect any smooth"),
             Text("transitions though."),
+            Text("If you want to start from the beginning,"),
+            Text("reload the page."),
         ).arrange(DOWN).shift(UP)
         self.play(Write(text), run_time=0.5)
         self.play(dot.animate.shift(4*LEFT))
+        self.wait()
 
+        ##############
+        # fullscreen #
+        ##############
+        self.next_normal_slide()
+        self.remove(text)
+
+        text = VGroup(
+            Text("Your eyes hurt from the tiny video?"),
+            Text("Stop whining!"),
+            Text("Or press F to enter fullscreen."),
+        ).arrange(DOWN)
+        self.play(FadeOut(dot), Write(text), run_time=0.5)
+        self.wait()
+
+        ####################
+        # loop slide intro #
+        ####################
         self.next_normal_slide()
         self.remove(text)
 
@@ -49,9 +85,12 @@ class Tutorial(Presentation):
             Text("Manim CE Gallery"),
             Text("that I ruthlessly copied :)"),
         ).arrange(DOWN)
-        self.play(FadeOut(dot), Write(text), run_time=0.5)
+        self.play(Write(text), run_time=0.5)
         self.wait()
 
+        ##############
+        # loop slide #
+        ##############
         self.next_loop_slide()
         self.remove(text)
 
@@ -72,6 +111,9 @@ class Tutorial(Presentation):
         self.play(dot.animate.shift(RIGHT))
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
+        ####################
+        # skip slide intro #
+        ####################
         self.next_normal_slide()
         self.remove(text, dot, line, circle)
 
@@ -86,6 +128,9 @@ class Tutorial(Presentation):
         self.play(Write(text))
         self.wait()
 
+        ##############
+        # skip slide #
+        ##############
         self.next_skip_slide()
         self.remove(text)
 
@@ -105,9 +150,11 @@ class Tutorial(Presentation):
         self.play(dot.animate.shift(RIGHT))
 
         self.next_loop_slide()
-
         self.play(MoveAlongPath(dot, circle), run_time=2, rate_func=linear)
 
+        #########################
+        # animation fucked again#
+        #########################
         self.next_normal_slide()
         self.remove(text)
 
@@ -115,18 +162,23 @@ class Tutorial(Presentation):
             Text("Let's finish the animation."),
             Text("Here we encounter another problem:"),
             Text("The loop immediately cuts when"),
-            Text("progressing to the next slide."),
+            Text("progressing to the next slide. You didn't"),
+            Text("see it? Go back in time and try again."),
         ).arrange(DOWN).shift(1.5*UP)
 
         self.play(Write(text), Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
+        self.wait()
 
+        #######################
+        # complete loop intro #
+        #######################
         self.next_normal_slide()
         self.remove(text, dot, circle, line)
 
         text = VGroup(
             Text("This is where"),
             MarkupText("<b>complete loop slides</b> come in."),
-            Text("It is just like a loop slide."),
+            Text("They are just like loop slides."),
             Text("But when the speaker continues to"),
             Text("the next slide, the complete loop"),
             Text("slide finishes before continuing."),
@@ -135,6 +187,9 @@ class Tutorial(Presentation):
         self.play(Write(text))
         self.wait()
 
+        #######################
+        # complete loop slide #
+        #######################
         self.next_skip_slide()
         self.remove(text)
 
@@ -154,10 +209,13 @@ class Tutorial(Presentation):
 
         self.next_normal_slide()
         self.play(Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
+        self.wait()
 
         self.next_normal_slide()
         self.remove(text, dot, circle, line)
         self.wait()
+
+        # https://ia600803.us.archive.org/29/items/MacArthur_Foundation_100andChange_dQw4w9WgXcQ/Rick_Astley_-_Never_Gonna_Give_You_Up_dQw4w9WgXcQ.mp4
 
 
 class BraceAnnotation(Presentation):
@@ -218,11 +276,4 @@ class BraceAnnotation(Presentation):
         self.play(scale_tracker.animate.set_value(1), run_time=3, rate_func=rate_functions.ease_in_out_sine)
         self.wait()
         self.play(FadeOut(line, dot, dot2, b1, b2, b1text, b2text))
-        self.wait()
-
-
-class Test(Presentation):
-    def construct(self):
-        s = Square()
-        self.add(s)
         self.wait()
