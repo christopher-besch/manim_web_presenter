@@ -31,6 +31,9 @@ export function get_slide_type_from_string(str: string): SlideType {
 }
 
 export abstract class Presentation {
+    timeline: HTMLTableElement;
+    timeline_slides: HTMLTableCellElement[] = [];
+
     // using two video elements for smooth transitions
     video0: HTMLVideoElement;
     video1: HTMLVideoElement;
@@ -47,10 +50,11 @@ export abstract class Presentation {
     // used for complete loops
     next_slide = 0;
 
-    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement) {
+    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement, timeline: HTMLTableElement) {
         this.video0 = video0;
         this.video1 = video1;
         this.videos_div = videos_div;
+        this.timeline = timeline;
 
         // load_slides
         get_json("index.json", (response, success) => {
@@ -67,6 +71,7 @@ export abstract class Presentation {
                 this.add_slide(slides[i]);
             console.log(`All ${slides.length} slides have been parsed successfully.`)
 
+            this.load_timeline();
             // start the action
             this.play_slide(0);
         });
@@ -122,6 +127,9 @@ export abstract class Presentation {
                 last_element.pause();
                 last_element.style.visibility = "hidden";
             });
+
+            this.update_timeline()
+            this.update_source();
         }
         else {
             // if current slide didn't change, restart video
@@ -129,8 +137,40 @@ export abstract class Presentation {
             this.get_current_video().currentTime = 0;
             this.get_current_video().play();
         }
-        this.update_source();
     }
+
+    load_timeline(): void {
+        for (let slide of this.slides) {
+            let row = document.createElement("tr");
+            this.timeline.appendChild(row);
+            let cell1 = document.createElement("th");
+            row.appendChild(cell1);
+            this.timeline_slides.push(cell1);
+            let selector = document.createElement("img");
+            cell1.appendChild(selector);
+            selector.src = ;
+
+            let cell2 = document.createElement("th");
+            row.appendChild(cell2);
+            let button = document.createElement("button");
+            cell2.appendChild(button);
+
+            button.innerText = slide.name;
+            button.onclick = () => {
+                this.play_slide(slide.slide_id);
+            };
+        }
+    }
+
+    update_timeline(): void {
+        // remove old indicator
+        if (this.previous_slide != -1) {
+            this.timeline_slides[this.previous_slide].innerHTML = "";
+        }
+        // add new indicator
+        document.CreateElement
+    }
+
 
     play_next_slide(): void {
         this.play_slide(this.current_slide + 1);
@@ -207,7 +247,7 @@ export abstract class Presentation {
 
     abstract add_slide(slide: SlideJson): void;
 
-    // called in end of play_video()
+    // called after slide changed
     // to be overwritten if required
     update_source(): void { }
 };

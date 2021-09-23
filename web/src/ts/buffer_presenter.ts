@@ -88,8 +88,8 @@ export class BufferPresentation extends Presentation {
     slides_to_auto_load;
     slides_to_keep;
 
-    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement, slides_to_auto_load: number, slides_to_keep: number) {
-        super(video0, video1, videos_div);
+    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement, timeline: HTMLTableElement, slides_to_auto_load: number, slides_to_keep: number) {
+        super(video0, video1, videos_div, timeline);
         this.slides_to_auto_load = slides_to_auto_load;
         this.slides_to_keep = slides_to_keep;
     }

@@ -51,12 +51,13 @@ document.body.onload = () => {
     next_button.getElementsByTagName("img")[0].src = next_icon;
     fullscreen_button.getElementsByTagName("img")[0].src = fullscreen_icon;
 
+    let timeline = document.getElementById("timeline") as HTMLTableElement;
     let video0 = document.getElementById("video0") as HTMLVideoElement;
     let video1 = document.getElementById("video1") as HTMLVideoElement;
     let videos_div = document.getElementById("videos-div") as HTMLDivElement;
     if (video0 == null || video1 == null)
         throw "Cant't find video elements.";
-    let presentation = new BufferPresentation(video0, video1, videos_div, 5, 2);
+    let presentation = new BufferPresentation(video0, video1, videos_div, timeline, 5, 2);
     // let presentation = new FallbackPresentation(video0, video1, videos_div);
 
     // ignore keyboard layout

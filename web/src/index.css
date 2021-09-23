@@ -1,3 +1,38 @@
+/* splitting screen, from https://www.w3schools.com/howto/howto_css_split_screen.asp */
+.split {
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+}
+
+.left {
+    width: 20%;
+    left: 0;
+}
+
+.right {
+    width: 80%;
+    right: 0;
+}
+
+.centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.centered img {
+    width: 150px;
+    border-radius: 50%;
+}
+
+
+/* video styling */
 #videos-div {
     position: relative;
 }
