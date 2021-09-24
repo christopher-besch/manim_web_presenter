@@ -251,6 +251,25 @@ class Tutorial(Presentation):
         self.play(Write(text), run_time=0.5)
         self.wait()
 
+        ###########
+        # caching #
+        ###########
+        self.next_normal_slide("caching")
+        self.remove(text)
+
+        text = VGroup(
+            Text("The caching button in the top left"),
+            Text("initiates requests for all videos,"),
+            Text("allowing the browser to cache"),
+            Text("them. This might be helpful"),
+            Text("when presenting from a remote"),
+            Text("server."),
+            Text("Important: Caching does not"),
+            Text("protect against loss of internet!"),
+        ).arrange(DOWN)
+        self.play(Write(text), run_time=0.5)
+        self.wait()
+
         ##########
         # ending #
         ##########

@@ -1,4 +1,4 @@
-import { get_json } from "./utils";
+import { get_json, ProgressBar } from "./utils";
 
 import unselected_icon from "../icons/radio_button_unchecked_black_24dp.svg";
 import selected_icon from "../icons/radio_button_checked_black_24dp.svg";
@@ -59,11 +59,24 @@ export abstract class Presentation {
     // used for complete loops
     next_slide = 0;
 
-    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement, timeline: HTMLTableElement) {
+    cache_batch_size: number;
+    progress_bar: ProgressBar;
+
+    constructor(
+        video0: HTMLVideoElement,
+        video1: HTMLVideoElement,
+        videos_div: HTMLDivElement,
+        timeline: HTMLTableElement,
+        progress_el: HTMLDivElement,
+        bar_el: HTMLDivElement,
+        cache_batch_size: number) {
+
         this.video0 = video0;
         this.video1 = video1;
         this.videos_div = videos_div;
         this.timeline = timeline;
+        this.cache_batch_size = cache_batch_size;
+        this.progress_bar = new ProgressBar(progress_el, bar_el);
 
         // load_slides
         get_json("index.json", (response, success) => {
@@ -80,6 +93,7 @@ export abstract class Presentation {
                 this.add_slide(slides[i]);
             console.log(`All ${slides.length} slides have been parsed successfully.`)
 
+            this.progress_bar.set_max(slides.length);
             this.load_timeline();
             // start the action
             this.play_slide(0);
@@ -250,6 +264,32 @@ export abstract class Presentation {
             return this.video1;
     }
 
+    // recursive; downloads everything after offset in batches
+    cache_batch(offset: number = 0): void {
+        this.progress_bar.show();
+        let done = false;
+        let finished = offset;
+        // cache one whole batch
+        for (let i = offset, len = Math.min(offset + this.cache_batch_size, this.slides.length); i < len; ++i)
+            this.slides[i].cache(() => {
+                // when this slide has been cached
+                this.progress_bar.update(finished);
+                ++finished;
+                // all finished
+                if (finished == this.slides.length) {
+                    console.log(`Batch caching complete with offset ${offset}`)
+                    console.log("Caching complete");
+                    this.progress_bar.hide();
+                    done = true;
+                }
+                // start next batch
+                else if (finished == offset + this.cache_batch_size) {
+                    console.log(`Batch caching complete with offset ${offset}`)
+                    this.cache_batch(finished);
+                }
+            });
+    }
+
     // todo: test on other browsers
     enter_fullscreen(): void {
         if (this.videos_div.requestFullscreen)
@@ -305,6 +345,20 @@ export abstract class Slide {
         this.name = slide.name;
         this.slide_id = slide.slide_id;
         this.video = slide.video;
+    }
+
+    cache(on_cached: () => void): void {
+        let request = new XMLHttpRequest();
+        // request.onload = on_cached;
+        request.onload = () => {
+            console.log(`Cached slide '${this.name}'`)
+            on_cached();
+        };
+        request.onerror = () => {
+            console.error(`Slide '${this.name}' failed to be cached`);
+        };
+        request.open("GET", this.video, true);
+        request.send();
     }
 
     abstract get_src_url(): string;
