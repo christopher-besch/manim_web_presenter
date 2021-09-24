@@ -1,5 +1,14 @@
 import { get_json } from "./utils";
 
+import unselected_icon from "../icons/radio_button_unchecked_black_24dp.svg";
+import selected_icon from "../icons/radio_button_checked_black_24dp.svg";
+import finished_icon from "../icons/check_circle_black_24dp.svg";
+
+import normal_slide_icon from "../icons/vertical_align_bottom_black_24dp.svg";
+import skip_slide_icon from "../icons/arrow_downward_black_24dp.svg";
+import loop_slide_icon from "../icons/rotate_left_black_24dp.svg";
+import complete_loop_slide_icon from "../icons/loop_black_24dp.svg";
+
 export type PresentationJson = {
     slides: SlideJson[];
 };
@@ -32,7 +41,7 @@ export function get_slide_type_from_string(str: string): SlideType {
 
 export abstract class Presentation {
     timeline: HTMLTableElement;
-    timeline_slides: HTMLTableCellElement[] = [];
+    timeline_slides: HTMLImageElement[] = [];
 
     // using two video elements for smooth transitions
     video0: HTMLVideoElement;
@@ -82,7 +91,6 @@ export abstract class Presentation {
         // if current slide is different from previous slide, change video source to new slide
         if (this.current_slide != this.previous_slide) {
             // swap videos
-            this.previous_slide = this.current_slide;
             let last_element = this.get_current_video();
             this.current_video = this.current_video == 0 ? 1 : 0;
             let next_element = this.get_current_video();
@@ -130,6 +138,9 @@ export abstract class Presentation {
 
             this.update_timeline()
             this.update_source();
+
+            // everything done -> side has changed
+            this.previous_slide = this.current_slide;
         }
         else {
             // if current slide didn't change, restart video
@@ -141,39 +152,70 @@ export abstract class Presentation {
 
     load_timeline(): void {
         for (let slide of this.slides) {
+            // one row, three cells per slide
             let row = document.createElement("tr");
             this.timeline.appendChild(row);
-            let cell1 = document.createElement("th");
+            row.onclick = () => {
+                this.play_slide(slide.slide_id, true);
+            };
+
+            // selector
+            let cell1 = document.createElement("td");
             row.appendChild(cell1);
-            this.timeline_slides.push(cell1);
             let selector = document.createElement("img");
             cell1.appendChild(selector);
-            selector.src = ;
+            selector.src = unselected_icon;
+            selector.width = 30;
+            selector.height = 30;
+            this.timeline_slides.push(selector);
 
-            let cell2 = document.createElement("th");
+            // slide type
+            let cell2 = document.createElement("td");
             row.appendChild(cell2);
+            let slide_icon = document.createElement("img");
+            cell2.appendChild(slide_icon);
+            switch (slide.type) {
+                case SlideType.NORMAL:
+                    slide_icon.src = normal_slide_icon;
+                    break;
+                case SlideType.SKIP:
+                    slide_icon.src = skip_slide_icon;
+                    break;
+                case SlideType.LOOP:
+                    slide_icon.src = loop_slide_icon;
+                    break;
+                case SlideType.COMPLETE_LOOP:
+                    slide_icon.src = complete_loop_slide_icon;
+                    break;
+            }
+            selector.width = 30;
+            selector.height = 30;
+
+            // button
+            let cell3 = document.createElement("td");
+            row.appendChild(cell3);
             let button = document.createElement("button");
             cell2.appendChild(button);
-
             button.innerText = slide.name;
-            button.onclick = () => {
-                this.play_slide(slide.slide_id);
-            };
         }
     }
 
     update_timeline(): void {
         // remove old indicator
         if (this.previous_slide != -1) {
-            this.timeline_slides[this.previous_slide].innerHTML = "";
+            this.timeline_slides[this.previous_slide].src = finished_icon;
         }
         // add new indicator
-        document.CreateElement
+        this.timeline_slides[this.current_slide].src = selected_icon;
     }
 
 
     play_next_slide(): void {
         this.play_slide(this.current_slide + 1);
+    }
+
+    restart_current_slide(): void {
+        this.play_slide(this.current_slide, true);
     }
 
     play_previous_slide(): void {

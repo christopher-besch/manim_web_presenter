@@ -1,5 +1,6 @@
 import "../index.css";
 import previous_icon from "../icons/navigate_before_black_24dp.svg";
+import restart_icon from "../icons/rotate_left_black_24dp.svg";
 import next_icon from "../icons/navigate_next_black_24dp.svg";
 import fullscreen_icon from "../icons/fullscreen_black_24dp.svg";
 
@@ -43,11 +44,13 @@ let fullscreen_keys = [
 
 document.body.onload = () => {
     let previous_button = document.getElementById("play-previous-slide") as HTMLButtonElement;
+    let restart_button = document.getElementById("play-current-slide") as HTMLButtonElement;
     let next_button = document.getElementById("play-next-slide") as HTMLButtonElement;
     let fullscreen_button = document.getElementById("enter-fullscreen") as HTMLButtonElement;
 
     // set icons
     previous_button.getElementsByTagName("img")[0].src = previous_icon;
+    restart_button.getElementsByTagName("img")[0].src = restart_icon;
     next_button.getElementsByTagName("img")[0].src = next_icon;
     fullscreen_button.getElementsByTagName("img")[0].src = fullscreen_icon;
 
@@ -73,6 +76,7 @@ document.body.onload = () => {
     });
 
     previous_button.addEventListener("click", presentation.play_previous_slide.bind(presentation));
+    restart_button.addEventListener("click", presentation.restart_current_slide.bind(presentation));
     next_button.addEventListener("click", presentation.play_next_slide.bind(presentation));
     fullscreen_button.addEventListener("click", presentation.enter_fullscreen.bind(presentation));
 }

@@ -87,6 +87,9 @@ These are all of the currently provided types of slides:
 | Loop Slide          | `self.next_loop_slide("name")`     | start, end, restart, immediately continue to next slide when continued by user |
 | Complete Loop Slide | `self.next_complete_slide("name")` | start, end, restart, finish animation first when user continues                |
 
+Skip slides are mainly used to give loops a beginning that isn't repeated.
+They can also be used to split up longer animations to be able to jump to specific parts using the timeline.
+
 ## Installation
 
 -    Clone repository: `git clone https://github.com/christopher-besch/manim_web_presenter`

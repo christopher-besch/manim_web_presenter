@@ -32,6 +32,16 @@
 }
 
 
+/* table styling */
+.padded-left {
+    padding-left: 20px;
+}
+
+td {
+    text-align: left;
+}
+
+
 /* video styling */
 #videos-div {
     position: relative;
