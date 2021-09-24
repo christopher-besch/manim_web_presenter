@@ -8,32 +8,33 @@
 </head>
 
 <body>
-    <div class="content">
-        <div class="side-bar">
-            <div class="timeline">
-                [timeline here]
-            </div>
+    <div class="split left padded-left">
+        <h1>Timeline</h1>
+        <table id="timeline">
+            <!-- indicator -->
+            <col style="width=30px">
+            <!-- slide type -->
+            <col style="width=30px">
+            <!-- button -->
+            <col>
+        </table>
+    </div>
 
-            <div class="time-spent">
-                [time spent here]
-            </div>
+    <div class="split right">
+        <div id="controls">
+            <button id="play-previous-slide"><img /></button>
+            <button id="play-current-slide"><img /></button>
+            <button id="play-next-slide"><img /></button>
+            <button id="enter-fullscreen"><img /></button>
         </div>
 
-        <div class="main">
-            <div class="controls">
-                <button id="play-previous-slide"><img /></button>
-                <button id="play-next-slide"><img /></button>
-                <button id="enter-fullscreen"><img /></button>
-            </div>
-
-            <div id="videos-div">
-                <video id="video0" class="main-video" muted width="720" height="480">
-                    Your browser doesn't support HTML5 videos.
-                </video>
-                <video id="video1" class="main-video" muted width="720" height="480">
-                    Your browser doesn't support HTML5 videos.
-                </video>
-            </div>
+        <div id="videos-div">
+            <video id="video0" class="main-video" muted width="720" height="480">
+                Your browser doesn't support HTML5 videos.
+            </video>
+            <video id="video1" class="main-video" muted width="720" height="480">
+                Your browser doesn't support HTML5 videos.
+            </video>
         </div>
     </div>
 </body>

@@ -1,5 +1,14 @@
 import { get_json } from "./utils";
 
+import unselected_icon from "../icons/radio_button_unchecked_black_24dp.svg";
+import selected_icon from "../icons/radio_button_checked_black_24dp.svg";
+import finished_icon from "../icons/check_circle_black_24dp.svg";
+
+import normal_slide_icon from "../icons/vertical_align_bottom_black_24dp.svg";
+import skip_slide_icon from "../icons/arrow_downward_black_24dp.svg";
+import loop_slide_icon from "../icons/rotate_left_black_24dp.svg";
+import complete_loop_slide_icon from "../icons/loop_black_24dp.svg";
+
 export type PresentationJson = {
     slides: SlideJson[];
 };
@@ -31,6 +40,9 @@ export function get_slide_type_from_string(str: string): SlideType {
 }
 
 export abstract class Presentation {
+    timeline: HTMLTableElement;
+    timeline_slides: HTMLImageElement[] = [];
+
     // using two video elements for smooth transitions
     video0: HTMLVideoElement;
     video1: HTMLVideoElement;
@@ -47,10 +59,11 @@ export abstract class Presentation {
     // used for complete loops
     next_slide = 0;
 
-    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement) {
+    constructor(video0: HTMLVideoElement, video1: HTMLVideoElement, videos_div: HTMLDivElement, timeline: HTMLTableElement) {
         this.video0 = video0;
         this.video1 = video1;
         this.videos_div = videos_div;
+        this.timeline = timeline;
 
         // load_slides
         get_json("index.json", (response, success) => {
@@ -67,6 +80,7 @@ export abstract class Presentation {
                 this.add_slide(slides[i]);
             console.log(`All ${slides.length} slides have been parsed successfully.`)
 
+            this.load_timeline();
             // start the action
             this.play_slide(0);
         });
@@ -77,7 +91,6 @@ export abstract class Presentation {
         // if current slide is different from previous slide, change video source to new slide
         if (this.current_slide != this.previous_slide) {
             // swap videos
-            this.previous_slide = this.current_slide;
             let last_element = this.get_current_video();
             this.current_video = this.current_video == 0 ? 1 : 0;
             let next_element = this.get_current_video();
@@ -122,6 +135,12 @@ export abstract class Presentation {
                 last_element.pause();
                 last_element.style.visibility = "hidden";
             });
+
+            this.update_timeline()
+            this.update_source();
+
+            // everything done -> side has changed
+            this.previous_slide = this.current_slide;
         }
         else {
             // if current slide didn't change, restart video
@@ -129,11 +148,74 @@ export abstract class Presentation {
             this.get_current_video().currentTime = 0;
             this.get_current_video().play();
         }
-        this.update_source();
     }
+
+    load_timeline(): void {
+        for (let slide of this.slides) {
+            // one row, three cells per slide
+            let row = document.createElement("tr");
+            this.timeline.appendChild(row);
+            row.onclick = () => {
+                this.play_slide(slide.slide_id, true);
+            };
+
+            // selector
+            let cell1 = document.createElement("td");
+            row.appendChild(cell1);
+            let selector = document.createElement("img");
+            cell1.appendChild(selector);
+            selector.src = unselected_icon;
+            selector.width = 30;
+            selector.height = 30;
+            this.timeline_slides.push(selector);
+
+            // slide type
+            let cell2 = document.createElement("td");
+            row.appendChild(cell2);
+            let slide_icon = document.createElement("img");
+            cell2.appendChild(slide_icon);
+            switch (slide.type) {
+                case SlideType.NORMAL:
+                    slide_icon.src = normal_slide_icon;
+                    break;
+                case SlideType.SKIP:
+                    slide_icon.src = skip_slide_icon;
+                    break;
+                case SlideType.LOOP:
+                    slide_icon.src = loop_slide_icon;
+                    break;
+                case SlideType.COMPLETE_LOOP:
+                    slide_icon.src = complete_loop_slide_icon;
+                    break;
+            }
+            selector.width = 30;
+            selector.height = 30;
+
+            // button
+            let cell3 = document.createElement("td");
+            row.appendChild(cell3);
+            let button = document.createElement("button");
+            cell2.appendChild(button);
+            button.innerText = slide.name;
+        }
+    }
+
+    update_timeline(): void {
+        // remove old indicator
+        if (this.previous_slide != -1) {
+            this.timeline_slides[this.previous_slide].src = finished_icon;
+        }
+        // add new indicator
+        this.timeline_slides[this.current_slide].src = selected_icon;
+    }
+
 
     play_next_slide(): void {
         this.play_slide(this.current_slide + 1);
+    }
+
+    restart_current_slide(): void {
+        this.play_slide(this.current_slide, true);
     }
 
     play_previous_slide(): void {
@@ -207,7 +289,7 @@ export abstract class Presentation {
 
     abstract add_slide(slide: SlideJson): void;
 
-    // called in end of play_video()
+    // called after slide changed
     // to be overwritten if required
     update_source(): void { }
 };

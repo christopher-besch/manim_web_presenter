@@ -222,11 +222,40 @@ class Tutorial(Presentation):
         self.play(Rotating(dot, about_point=[2, -2, 0]), run_time=1.5)
         self.wait()
 
+        ############
+        # timeline #
+        ############
+        self.next_normal_slide("timeline")
+        self.remove(text, dot, circle, line)
+
+        text = VGroup(
+            Text("On the left you can see the"),
+            Text("timeline. It shows the names"),
+            Text("and types of all slides. When"),
+            Text("you click on a slide on the timeline,"),
+            Text("that slide plays immediately."),
+        ).arrange(DOWN)
+        self.play(Write(text), run_time=0.5)
+        self.wait()
+
+        self.next_normal_slide("skip slides and the timeline")
+        self.remove(text)
+
+        text = VGroup(
+            Text("This shows another use case for"),
+            Text("skip slides:"),
+            Text("Splitting up bigger animations."),
+            Text("With the timeline"),
+            Text("you can skip to any part of it."),
+        ).arrange(DOWN)
+        self.play(Write(text), run_time=0.5)
+        self.wait()
+
         ##########
         # ending #
         ##########
         self.next_normal_slide("active development")
-        self.remove(text, dot, circle, line)
+        self.remove(text)
 
         text = VGroup(
             Text("This project is still under"),
