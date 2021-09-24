@@ -43,6 +43,10 @@ let fullscreen_keys = [
 ];
 
 document.body.onload = () => {
+    let progress_el = document.getElementById("progress") as HTMLDivElement;
+    let bar_el = document.getElementById("progress-bar") as HTMLDivElement;
+    let cache_button = document.getElementById("cache-button") as HTMLDivElement;
+
     let previous_button = document.getElementById("play-previous-slide") as HTMLButtonElement;
     let restart_button = document.getElementById("play-current-slide") as HTMLButtonElement;
     let next_button = document.getElementById("play-next-slide") as HTMLButtonElement;
@@ -60,8 +64,21 @@ document.body.onload = () => {
     let videos_div = document.getElementById("videos-div") as HTMLDivElement;
     if (video0 == null || video1 == null)
         throw "Cant't find video elements.";
-    let presentation = new BufferPresentation(video0, video1, videos_div, timeline, 5, 2);
-    // let presentation = new FallbackPresentation(video0, video1, videos_div);
+    // let presentation = new BufferPresentation(
+    //     video0, video1,
+    //     videos_div,
+    //     timeline,
+    //     progress_el,
+    //     bar_el,
+    //     3,
+    //     5, 2);
+    let presentation = new FallbackPresentation(
+        video0, video1,
+        videos_div,
+        timeline,
+        progress_el,
+        bar_el,
+        3);
 
     // ignore keyboard layout
     document.addEventListener("keydown", (e: KeyboardEvent) => {
@@ -73,6 +90,11 @@ document.body.onload = () => {
             presentation.play_next_slide();
         else if (fullscreen_keys.includes(e.code))
             presentation.toggle_fullscreen();
+    });
+
+    cache_button.addEventListener("click", () => {
+        cache_button.style.visibility = "hidden";
+        presentation.cache_batch();
     });
 
     previous_button.addEventListener("click", presentation.play_previous_slide.bind(presentation));
