@@ -264,25 +264,30 @@ export abstract class Presentation {
             return this.video1;
     }
 
-    // recursive, downloads everything after offset
+    // recursive; downloads everything after offset in batches
     cache_batch(offset: number = 0): void {
-        console.log("created new cache call");
         this.progress_bar.show();
-        for (let i = offset; i < offset + this.cache_batch_size; ++i) {
-            // todo: broken
-            console.log(`caching slide #${i}, offset ${offset}`);
+        let done = false;
+        let finished = offset;
+        // cache one whole batch
+        for (let i = offset, len = Math.min(offset + this.cache_batch_size, this.slides.length); i < len; ++i)
             this.slides[i].cache(() => {
-                this.progress_bar.update(i);
-                // finished
-                if (i == this.slides.length) {
+                // when this slide has been cached
+                this.progress_bar.update(finished);
+                ++finished;
+                // all finished
+                if (finished == this.slides.length) {
+                    console.log(`Batch caching complete with offset ${offset}`)
+                    console.log("Caching complete");
                     this.progress_bar.hide();
-                    return;
+                    done = true;
                 }
                 // start next batch
-                if (i == offset + this.cache_batch_size)
-                    this.cache_batch(i);
+                else if (finished == offset + this.cache_batch_size) {
+                    console.log(`Batch caching complete with offset ${offset}`)
+                    this.cache_batch(finished);
+                }
             });
-        }
     }
 
     // todo: test on other browsers
@@ -343,11 +348,11 @@ export abstract class Slide {
     }
 
     cache(on_cached: () => void): void {
-        console.log(`Caching slide '${this.name}'`)
         let request = new XMLHttpRequest();
         // request.onload = on_cached;
         request.onload = () => {
-            setTimeout(on_cached, 500);
+            console.log(`Cached slide '${this.name}'`)
+            on_cached();
         };
         request.onerror = () => {
             console.error(`Slide '${this.name}' failed to be cached`);

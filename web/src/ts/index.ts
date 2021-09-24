@@ -64,21 +64,21 @@ document.body.onload = () => {
     let videos_div = document.getElementById("videos-div") as HTMLDivElement;
     if (video0 == null || video1 == null)
         throw "Cant't find video elements.";
-    // let presentation = new BufferPresentation(
-    //     video0, video1,
-    //     videos_div,
-    //     timeline,
-    //     progress_el,
-    //     bar_el,
-    //     3,
-    //     5, 2);
-    let presentation = new FallbackPresentation(
+    let presentation = new BufferPresentation(
         video0, video1,
         videos_div,
         timeline,
         progress_el,
         bar_el,
-        3);
+        5,
+        5, 2);
+    // let presentation = new FallbackPresentation(
+    //     video0, video1,
+    //     videos_div,
+    //     timeline,
+    //     progress_el,
+    //     bar_el,
+    //     5);
 
     // ignore keyboard layout
     document.addEventListener("keydown", (e: KeyboardEvent) => {

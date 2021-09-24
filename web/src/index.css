@@ -26,8 +26,20 @@
     padding-right: 20px;
 }
 
+.padded-top {
+    padding-right: 20px;
+}
+
+.padded-bottom {
+    padding-right: 20px;
+}
+
 
 /* caching */
+#caching {
+    padding-right: 40px;
+}
+
 #progress {
     visibility: hidden;
     width: 100%;
@@ -47,6 +59,10 @@
 
 
 /* table styling */
+#timeline {
+    margin-bottom: 40px;
+}
+
 td {
     text-align: left;
 }
