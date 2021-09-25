@@ -1,43 +1,18 @@
-import { get_json, ProgressBar } from "./utils";
+import { get_json, ProgressBar } from "../utils";
+import { Slide, SlideJson, SlideType } from "./slide";
 
-import unselected_icon from "../icons/radio_button_unchecked_black_24dp.svg";
-import selected_icon from "../icons/radio_button_checked_black_24dp.svg";
-import finished_icon from "../icons/check_circle_black_24dp.svg";
+import unselected_icon from "../../icons/radio_button_unchecked_black_24dp.svg";
+import selected_icon from "../../icons/radio_button_checked_black_24dp.svg";
+import finished_icon from "../../icons/check_circle_black_24dp.svg";
 
-import normal_slide_icon from "../icons/vertical_align_bottom_black_24dp.svg";
-import skip_slide_icon from "../icons/arrow_downward_black_24dp.svg";
-import loop_slide_icon from "../icons/rotate_left_black_24dp.svg";
-import complete_loop_slide_icon from "../icons/loop_black_24dp.svg";
+import normal_slide_icon from "../../icons/vertical_align_bottom_black_24dp.svg";
+import skip_slide_icon from "../../icons/arrow_downward_black_24dp.svg";
+import loop_slide_icon from "../../icons/rotate_left_black_24dp.svg";
+import complete_loop_slide_icon from "../../icons/loop_black_24dp.svg";
 
 export type PresentationJson = {
     slides: SlideJson[];
 };
-
-export type SlideJson = {
-    slide_type: string;
-    name: string;
-    slide_id: number;
-    first_animation: number;
-    after_last_animation: number;
-    video: string;
-};
-
-export enum SlideType {
-    NORMAL,
-    LOOP,
-    SKIP,
-    COMPLETE_LOOP
-}
-
-export function get_slide_type_from_string(str: string): SlideType {
-    switch (str) {
-        case "normal": return SlideType.NORMAL;
-        case "loop": return SlideType.LOOP;
-        case "skip": return SlideType.SKIP;
-        case "complete_loop": return SlideType.COMPLETE_LOOP;
-        default: return SlideType.NORMAL;
-    }
-}
 
 export abstract class Presentation {
     timeline: HTMLTableElement;
@@ -267,7 +242,6 @@ export abstract class Presentation {
     // recursive; downloads everything after offset in batches
     cache_batch(offset: number = 0): void {
         this.progress_bar.show();
-        let done = false;
         let finished = offset;
         // cache one whole batch
         for (let i = offset, len = Math.min(offset + this.cache_batch_size, this.slides.length); i < len; ++i)
@@ -280,7 +254,6 @@ export abstract class Presentation {
                     console.log(`Batch caching complete with offset ${offset}`)
                     console.log("Caching complete");
                     this.progress_bar.hide();
-                    done = true;
                 }
                 // start next batch
                 else if (finished == offset + this.cache_batch_size) {
@@ -333,33 +306,3 @@ export abstract class Presentation {
     // to be overwritten if required
     update_source(): void { }
 };
-
-export abstract class Slide {
-    type: SlideType;
-    name: string;
-    slide_id: number;
-    video: string;
-
-    constructor(slide: SlideJson) {
-        this.type = get_slide_type_from_string(slide.slide_type);
-        this.name = slide.name;
-        this.slide_id = slide.slide_id;
-        this.video = slide.video;
-    }
-
-    cache(on_cached: () => void): void {
-        let request = new XMLHttpRequest();
-        // request.onload = on_cached;
-        request.onload = () => {
-            console.log(`Cached slide '${this.name}'`)
-            on_cached();
-        };
-        request.onerror = () => {
-            console.error(`Slide '${this.name}' failed to be cached`);
-        };
-        request.open("GET", this.video, true);
-        request.send();
-    }
-
-    abstract get_src_url(): string;
-}

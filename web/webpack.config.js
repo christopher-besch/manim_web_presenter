@@ -12,7 +12,6 @@ module.exports = (env) => {
         entry: {
             index: "./src/ts/index.ts",
             menu: "./src/ts/menu.ts",
-            video_viewer: "./src/ts/video_viewer.ts",
         },
         module: {
             rules: [{
@@ -60,18 +59,12 @@ module.exports = (env) => {
                 chunks: ["menu"],
             }),
             new html_webpack_plugin({
-                template: "./src/video_viewer.html",
-                filename: "./video_viewer.html",
-                inject: "body",
-                chunks: ["video_viewer"],
-            }),
-            new html_webpack_plugin({
                 template: "./src/fallback.html",
                 filename: "./fallback.html",
                 inject: "body",
                 chunks: [],
             }),
-            new inline_chunk_html_plugin(html_webpack_plugin, [/index/, /video_viewer/, /menu/]),
+            new inline_chunk_html_plugin(html_webpack_plugin, [/index/, /menu/]),
         ]
     };
 };

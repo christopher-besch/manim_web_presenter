@@ -4,9 +4,9 @@ import restart_icon from "../icons/rotate_left_black_24dp.svg";
 import next_icon from "../icons/navigate_next_black_24dp.svg";
 import fullscreen_icon from "../icons/fullscreen_black_24dp.svg";
 
-import { Presentation } from "./presenter";
-import { BufferPresentation } from "./buffer_presenter";
-import { FallbackPresentation } from "./fallback_presenter";
+import { Presentation } from "./presenter/presentation";
+import { BufferPresentation } from "./buffer_presenter/buffer_presentation";
+import { FallbackPresentation } from "./fallback_presenter/fallback_presentation";
 
 // according to KeyboardEvent.code on: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code/code_values
 let prev_keys = [
