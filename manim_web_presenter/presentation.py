@@ -215,7 +215,6 @@ class RawPresentation:
         # copy and configure web site over
         web_files = [
             "index.html",
-            "video_viewer.html"
         ]
         for file in web_files:
             shutil.copyfile(os.path.join(self.web_folder, file), os.path.join(self.output_folder, file))
