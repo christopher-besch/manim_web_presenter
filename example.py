@@ -230,7 +230,10 @@ class Tutorial(Presentation):
 
         text = VGroup(
             Text("On the left you can see the"),
-            Text("timeline. It shows the names"),
+            Text("timeline. If you're in fullscreen,"),
+            Text("you have to exit it first."),
+            Text("To do that you can use Escape or F."),
+            Text("The timeline shows the names"),
             Text("and types of all slides. When"),
             Text("you click on a slide on the timeline,"),
             Text("that slide plays immediately."),
@@ -308,6 +311,11 @@ class Tutorial(Presentation):
         ############
         self.next_normal_slide("heli flying into the sunset; fade out")
         self.play(Unwrite(text), Unwrite(end), Unwrite(end_ul))
+        self.wait(2)
+
+        image = ImageMobject("img.jpg")
+        image.height = 9
+        self.play(FadeIn(image))
         self.wait()
 
         # https://ia600803.us.archive.org/29/items/MacArthur_Foundation_100andChange_dQw4w9WgXcQ/Rick_Astley_-_Never_Gonna_Give_You_Up_dQw4w9WgXcQ.mp4
