@@ -128,7 +128,7 @@ function attach_nerdy_ui(): void {
     let slides_to_keep_input = document.getElementById("slides-to-keep-input") as HTMLInputElement;
 
     // set text
-    fallback_button.innerText = use_fallback ? "Disable Fallback Loading" : "Use Fallback Loading";
+    fallback_button.innerText = use_fallback ? "Use Buffer Loader" : "Use Fallback Loader";
     cache_batch_size_input.value = cache_batch_size.toString();
     slides_to_auto_load_input.value = slides_to_auto_load.toString();
     slides_to_keep_input.value = slides_to_keep.toString();
