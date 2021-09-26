@@ -251,27 +251,8 @@ class Tutorial(Presentation):
         self.play(Write(text), run_time=0.5)
         self.wait()
 
-        ###########
-        # caching #
-        ###########
-        self.next_normal_slide("caching")
-        self.remove(text)
-
-        text = VGroup(
-            Text("The caching button in the top left"),
-            Text("initiates requests for all videos,"),
-            Text("allowing the browser to cache"),
-            Text("them. This might be helpful"),
-            Text("when presenting from a remote"),
-            Text("server."),
-            Text("Important: Caching does not"),
-            Text("protect against loss of internet!"),
-        ).arrange(DOWN)
-        self.play(Write(text), run_time=0.5)
-        self.wait()
-
         ##########
-        # ending #
+        # github #
         ##########
         self.next_normal_slide("active development")
         self.remove(text)
@@ -286,6 +267,25 @@ class Tutorial(Presentation):
         self.play(Write(text), run_time=0.5)
         self.wait()
 
+        self.next_normal_slide("docs")
+        self.remove(text)
+
+        text = VGroup(
+            Text("On GitHub you'll find a more in-depth"),
+            Text("documentation. It explains some nerdy"),
+            Text("details about how the videos are"),
+            Text("being played, buffered and cached."),
+            Text("It also shows how to use the"),
+            Text("presentation API."),
+            Text("If you have any questions,"),
+            Text("this is where you should look first."),
+        ).arrange(DOWN)
+        self.play(Write(text), run_time=0.5)
+        self.wait()
+
+        ##########
+        # ending #
+        ##########
         self.next_normal_slide("ending")
         self.remove(text)
 

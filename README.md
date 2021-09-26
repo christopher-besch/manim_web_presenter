@@ -1,9 +1,16 @@
 # Manim Web Presenter
+Web Presentation using Manim
 
 [![Linux Build](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml/badge.svg?branch=main)](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml)
 [![License](https://img.shields.io/badge/license-MIT-yellow)](https://github.com/christopher-besch/manim_web_presenter/blob/main/LICENSE)
 
-Web Presentation using Manim
+Present mathematical topics using the usability of [Manim CE](https://www.manim.community) and prevalence of the web.
+The Manim Web Presenter produces an entire web page for a single presentation.
+You only have to host that web page locally or serve it as a static resource from a web server.
+If you're using a server, you are especially benefiting from redundancy provided by the web.
+Your laptop gives up the ghost mere minutes before your presentation?
+As long as you have some helpful people around you, there's no problem.
+Simply use some else's laptop and you're good to go, explaining how to square the circle or whatever.
 
 ## [Tutorial](https://christopher-besch.github.io/manim_web_presenter/Tutorial)
 
