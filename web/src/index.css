@@ -69,6 +69,14 @@ td {
 
 
 /* video styling */
+.spaced-button {
+    margin-left: 20px;
+}
+
+.number-input {
+    width: 50px;
+}
+
 #videos-div {
     position: relative;
 }

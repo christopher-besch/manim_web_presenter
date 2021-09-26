@@ -1,11 +1,10 @@
-import "../index.css";
-import { SlideJson, Presentation, Slide } from "./presenter";
+import { SlideJson, Slide } from "../presenter/slide";
 
-class BufferSlide extends Slide {
-    media_source: MediaSource = new MediaSource();
-    media_buffer: BufferSource | null = null;
+export class BufferSlide extends Slide {
+    private media_source: MediaSource = new MediaSource();
+    private media_buffer: BufferSource | null = null;
 
-    constructor(slide: SlideJson) {
+    public constructor(slide: SlideJson) {
         super(slide);
         // when setting url to video element
         this.media_source.onsourceopen = (_) => {
@@ -47,7 +46,7 @@ class BufferSlide extends Slide {
         }
     }
 
-    load(
+    public load(
         on_loaded: (() => void) | null = null,
         on_failed: (() => void) | null = null
     ): void {
@@ -74,57 +73,11 @@ class BufferSlide extends Slide {
         request.send();
     }
 
-    unload(): void {
+    public unload(): void {
         this.media_buffer = null;
     }
 
-    override get_src_url(): string {
+    public override get_src_url(): string {
         return URL.createObjectURL(this.media_source);
-    }
-}
-
-export class BufferPresentation extends Presentation {
-    // when both 0, only current slide will be buffered
-    slides_to_auto_load;
-    slides_to_keep;
-
-    // constructor(
-    //     video0: HTMLVideoElement,
-    //     video1: HTMLVideoElement,
-    //     videos_div: HTMLDivElement,
-    //     timeline: HTMLTableElement,
-    //     progress_el: HTMLDivElement,
-    //     bar_el: HTMLDivElement,
-    //     cache_batch_size: number) {
-
-    constructor(
-        video0: HTMLVideoElement,
-        video1: HTMLVideoElement,
-        videos_div: HTMLDivElement,
-        timeline: HTMLTableElement,
-        progress_el: HTMLDivElement,
-        bar_el: HTMLDivElement,
-        cache_batch_size: number,
-
-        slides_to_auto_load: number,
-        slides_to_keep: number) {
-
-        super(video0, video1, videos_div, timeline, progress_el, bar_el, cache_batch_size);
-        this.slides_to_auto_load = slides_to_auto_load;
-        this.slides_to_keep = slides_to_keep;
-    }
-
-    // update currently playing video according to current_slide
-    override update_source(): void {
-        // load next slides
-        for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i)
-            (this.slides[i] as BufferSlide).load();
-        // unload previous slides
-        for (let i = 0, len = this.current_slide - this.slides_to_keep; i < len; ++i)
-            (this.slides[i] as BufferSlide).unload();
-    }
-
-    override add_slide(slide: SlideJson): void {
-        this.slides.push(new BufferSlide(slide));
     }
 }

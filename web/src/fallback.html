@@ -10,10 +10,14 @@
 <body>
     <h1>Manim Web Presenter Fallback</h1>
 
+    <a href="index.html">Normal Presenter</a>
+    <br />
     <a href="movie.mp4">Entire Presentation</a>
 
+    <h2>Slides</h2>
+
     {% for slide in slides %}
-    <h2><a href="{{ slide.video }}">{{ slide.name }}</a></h2>
+    <h3><a href="{{ slide.video }}">{{ slide.name }}</a></h3>
     {% endfor %}
 </body>
 
