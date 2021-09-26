@@ -1,4 +1,5 @@
-import { get_json, ProgressBar } from "../utils";
+import { get_json } from "../utils";
+import { ProgressBar } from "../progress_bar";
 import { Slide, SlideJson, SlideType } from "./slide";
 
 import unselected_icon from "../../icons/radio_button_unchecked_black_24dp.svg";
