@@ -4,10 +4,10 @@ import { BufferSlide } from "./buffer_slide";
 
 export class BufferPresentation extends Presentation {
     // when both 0, only current slide will be buffered
-    slides_to_auto_load;
-    slides_to_keep;
+    private slides_to_auto_load;
+    private slides_to_keep;
 
-    constructor(
+    public constructor(
         video0: HTMLVideoElement,
         video1: HTMLVideoElement,
         videos_div: HTMLDivElement,
@@ -25,7 +25,7 @@ export class BufferPresentation extends Presentation {
     }
 
     // update currently playing video according to current_slide
-    override update_source(): void {
+    protected override update_source(): void {
         // load next slides
         for (let i = this.current_slide + 1, len = Math.min(this.current_slide + this.slides_to_auto_load + 1, this.slides.length); i < len; ++i)
             (this.slides[i] as BufferSlide).load();
@@ -34,7 +34,7 @@ export class BufferPresentation extends Presentation {
             (this.slides[i] as BufferSlide).unload();
     }
 
-    override add_slide(slide: SlideJson): void {
+    protected override add_slide(slide: SlideJson): void {
         this.slides.push(new BufferSlide(slide));
     }
 }

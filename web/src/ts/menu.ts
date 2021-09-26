@@ -1,10 +1,7 @@
 import { get_json } from "./utils";
 
-document.body.onload = () => {
-    get_json("./presentation_index.json", (response, success) => {
-        if (!success)
-            console.error("Failed to download 'presentation_index.json'");
-        let presentations = response as string[];
+function load_presentation_links() {
+    get_json("./presentation_index.json", (presentations: string[]) => {
         for (let presentation of presentations) {
             let anchor = document.body.appendChild(
                 document.createElement("h2")).appendChild(
@@ -13,4 +10,8 @@ document.body.onload = () => {
             anchor.innerText = presentation;
         }
     });
+}
+
+document.body.onload = () => {
+    load_presentation_links();
 }

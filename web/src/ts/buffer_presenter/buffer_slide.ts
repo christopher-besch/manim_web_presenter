@@ -1,10 +1,10 @@
 import { SlideJson, Slide } from "../presenter/slide";
 
 export class BufferSlide extends Slide {
-    media_source: MediaSource = new MediaSource();
-    media_buffer: BufferSource | null = null;
+    private media_source: MediaSource = new MediaSource();
+    private media_buffer: BufferSource | null = null;
 
-    constructor(slide: SlideJson) {
+    public constructor(slide: SlideJson) {
         super(slide);
         // when setting url to video element
         this.media_source.onsourceopen = (_) => {
@@ -46,7 +46,7 @@ export class BufferSlide extends Slide {
         }
     }
 
-    load(
+    public load(
         on_loaded: (() => void) | null = null,
         on_failed: (() => void) | null = null
     ): void {
@@ -73,11 +73,11 @@ export class BufferSlide extends Slide {
         request.send();
     }
 
-    unload(): void {
+    public unload(): void {
         this.media_buffer = null;
     }
 
-    override get_src_url(): string {
+    public override get_src_url(): string {
         return URL.createObjectURL(this.media_source);
     }
 }

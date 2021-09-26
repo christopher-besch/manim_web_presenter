@@ -14,32 +14,33 @@ export enum SlideType {
     COMPLETE_LOOP
 }
 
-export function get_slide_type_from_string(str: string): SlideType {
+export function get_slide_type(str: string): SlideType {
     switch (str) {
         case "normal": return SlideType.NORMAL;
         case "loop": return SlideType.LOOP;
         case "skip": return SlideType.SKIP;
         case "complete_loop": return SlideType.COMPLETE_LOOP;
-        default: return SlideType.NORMAL;
+        default:
+            console.error(`Unsupported slide type '${str}'`);
+            return SlideType.NORMAL;
     }
 }
 
 export abstract class Slide {
-    type: SlideType;
-    name: string;
-    slide_id: number;
-    video: string;
+    protected type: SlideType;
+    protected name: string;
+    protected slide_id: number;
+    protected video: string;
 
-    constructor(slide: SlideJson) {
-        this.type = get_slide_type_from_string(slide.slide_type);
+    public constructor(slide: SlideJson) {
+        this.type = get_slide_type(slide.slide_type);
         this.name = slide.name;
         this.slide_id = slide.slide_id;
         this.video = slide.video;
     }
 
-    cache(on_cached: () => void): void {
+    public cache(on_cached: () => void): void {
         let request = new XMLHttpRequest();
-        // request.onload = on_cached;
         request.onload = () => {
             console.log(`Cached slide '${this.name}'`)
             on_cached();
@@ -51,5 +52,8 @@ export abstract class Slide {
         request.send();
     }
 
-    abstract get_src_url(): string;
+    public get_type(): SlideType { return this.type; }
+    public get_name(): string { return this.name; }
+    public get_id(): number { return this.slide_id; }
+    public abstract get_src_url(): string;
 }

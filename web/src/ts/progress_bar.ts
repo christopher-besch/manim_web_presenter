@@ -1,30 +1,30 @@
 export class ProgressBar {
-    progress_el: HTMLDivElement;
-    bar_el: HTMLDivElement;
-    max: number;
+    private progress_el: HTMLDivElement;
+    private bar_el: HTMLDivElement;
+    private max: number;
 
-    constructor(progress_el: HTMLDivElement, bar_el: HTMLDivElement, max: number = -1) {
+    public constructor(progress_el: HTMLDivElement, bar_el: HTMLDivElement, max: number = -1) {
         this.progress_el = progress_el;
         this.bar_el = bar_el;
         this.max = max;
     }
 
-    set_max(max: number) {
+    public set_max(max: number) {
         if (max <= 0)
-            throw "ProgressBar max can't be smaller/equals 0";
+            console.error("ProgressBar max can't be smaller/equals 0");
         this.max = max;
     }
 
-    show(): void {
+    public show(): void {
         this.progress_el.style.visibility = "visible";
     }
 
-    hide(): void {
+    public hide(): void {
         this.progress_el.style.visibility = "hidden";
     }
 
-    update(value: number): void {
-        // must be in [0, this.max]
+    // value must be in [0, this.max]
+    public update(value: number): void {
         if (value < 0 || value > this.max) {
             console.error(`ProgressBar with max ${this.max} can't update to value ${value}`);
             return;

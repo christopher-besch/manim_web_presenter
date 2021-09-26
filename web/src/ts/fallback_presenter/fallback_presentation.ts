@@ -4,7 +4,7 @@ import { FallbackSlide } from "./fallback_slide";
 
 // no buffering, only change src of video
 export class FallbackPresentation extends Presentation {
-    override add_slide(slide: SlideJson): void {
+    public override add_slide(slide: SlideJson): void {
         this.slides.push(new FallbackSlide(slide));
     }
 }

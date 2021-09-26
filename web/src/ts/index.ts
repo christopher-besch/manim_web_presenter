@@ -144,7 +144,7 @@ function attach_nerdy_ui(): void {
     // add callbacks
     cache_button.addEventListener("click", () => {
         cache_button.style.visibility = "hidden";
-        presentation.cache_batch();
+        presentation.cache();
     });
     fallback_button.addEventListener("click", () => {
         URLParams.set("use_fallback", (!use_fallback).toString());
