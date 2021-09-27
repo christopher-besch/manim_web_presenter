@@ -1,6 +1,6 @@
 import { get_json } from "../utils";
 import { ProgressBar } from "../progress_bar";
-import { Slide, SlideJson, SlideType } from "./slide";
+import { Slide, SlideJson, ExportSlideJson, SlideType } from "./slide";
 
 import unselected_icon from "../../icons/radio_button_unchecked_black_24dp.svg";
 import selected_icon from "../../icons/radio_button_checked_black_24dp.svg";
@@ -37,6 +37,9 @@ export abstract class Presentation {
     // used for complete loops
     private next_slide = 0;
 
+    // started when first slide starts
+    private start_time = -1;
+
     public constructor(
         video0: HTMLVideoElement,
         video1: HTMLVideoElement,
@@ -63,6 +66,7 @@ export abstract class Presentation {
 
             this.progress_bar.set_max(slides.length);
             this.load_timeline();
+            this.start_timer();
             // start the action
             this.play_slide(0);
         });
@@ -124,6 +128,7 @@ export abstract class Presentation {
             last_element.style.visibility = "hidden";
         });
 
+        this.update_timer();
         this.update_timeline()
         this.update_source();
 
@@ -293,6 +298,28 @@ export abstract class Presentation {
             this.exit_fullscreen();
         else
             this.enter_fullscreen();
+    }
+
+    private start_timer(): void {
+        this.start_time = performance.now();
+    }
+
+    private update_timer(): void {
+        let current_time = performance.now();
+        this.slides[this.current_slide].set_time_stamp(current_time - this.start_time);
+    }
+
+    public export_video(): void {
+        let export_slides: ExportSlideJson[] = [];
+        for (let slide of this.slides)
+            export_slides.push(slide.export());
+
+        let export_str = JSON.stringify(export_slides);
+        let export_obj = new Blob([export_str], { type: "text/plain" });
+        let anchor = document.createElement("a");
+        anchor.download = "video_export.json";
+        anchor.href = window.URL.createObjectURL(export_obj);
+        anchor.click();
     }
 
     protected abstract add_slide(slide: SlideJson): void;

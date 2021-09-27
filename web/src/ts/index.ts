@@ -122,6 +122,7 @@ function attach_nerdy_ui(): void {
     let cache_batch_size_button = document.getElementById("cache-batch-size-button") as HTMLButtonElement;
     let slides_to_auto_load_button = document.getElementById("slides-to-auto-load-button") as HTMLButtonElement;
     let slides_to_keep_button = document.getElementById("slides-to-keep-button") as HTMLButtonElement;
+    let export_button = document.getElementById("export") as HTMLButtonElement;
 
     let cache_batch_size_input = document.getElementById("cache-batch-size-input") as HTMLInputElement;
     let slides_to_auto_load_input = document.getElementById("slides-to-auto-load-input") as HTMLInputElement;
@@ -161,6 +162,7 @@ function attach_nerdy_ui(): void {
         let new_value = Number(slides_to_keep_input.value);
         URLParams.set("slides_to_keep", new_value);
     });
+    export_button.addEventListener("click", presentation.export_video.bind(presentation));
 }
 
 var cache_batch_size = 5;
