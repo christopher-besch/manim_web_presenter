@@ -7,6 +7,14 @@ export type SlideJson = {
     video: string;
 };
 
+export type ExportSlideJson = {
+    slide_type: string;
+    name: string;
+    slide_id: number;
+    video: string;
+    time_stamp: number;
+};
+
 export enum SlideType {
     NORMAL,
     LOOP,
@@ -26,11 +34,25 @@ export function get_slide_type(str: string): SlideType {
     }
 }
 
+export function get_slide_type_str(input: SlideType): string {
+    switch (input) {
+        case SlideType.NORMAL: return "normal";
+        case SlideType.LOOP: return "loop";
+        case SlideType.SKIP: return "skip";
+        case SlideType.COMPLETE_LOOP: return "complete_loop";
+        default:
+            console.error(`Unsupported slide type '${input}'`);
+            return "normal";
+    }
+}
+
 export abstract class Slide {
     protected type: SlideType;
     protected name: string;
     protected slide_id: number;
     protected video: string;
+
+    protected time_stamp = -1;
 
     public constructor(slide: SlideJson) {
         this.type = get_slide_type(slide.slide_type);
@@ -52,8 +74,21 @@ export abstract class Slide {
         request.send();
     }
 
+    public export(): ExportSlideJson {
+        return {
+            slide_type: get_slide_type_str(this.type),
+            name: this.name,
+            slide_id: this.slide_id,
+            video: this.video,
+            time_stamp: this.time_stamp,
+        };
+    }
+
     public get_type(): SlideType { return this.type; }
     public get_name(): string { return this.name; }
     public get_id(): number { return this.slide_id; }
+    public get_time_stamp(): number { return this.time_stamp; }
     public abstract get_src_url(): string;
+
+    public set_time_stamp(time_stamp: number): void { this.time_stamp = time_stamp; }
 }
