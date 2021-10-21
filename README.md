@@ -6,6 +6,10 @@ Web Presentation using Manim
 
 Present mathematical topics using the usability of [Manim CE](https://www.manim.community) and prevalence of the web.
 
+## Note:
+
+This web-presenter will soon move to this repository https://github.com/ManimEditorProject/manim_editor.
+
 It produces an entire web page for a single presentation.
 You only have to host that web page locally or serve it as a static resource from a web server.
 If you're using a server, you have a special advantage:
