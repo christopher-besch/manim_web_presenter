@@ -37,6 +37,7 @@ jobs:
 
       - name: Update environment
         run: |
+          sudo apt update
           sudo apt install libcairo2-dev libpango1.0-dev ffmpeg python3-pip nodejs npm texlive-full
           pip3 install -r requirements.txt
           cd ${{github.workspace}}/web
