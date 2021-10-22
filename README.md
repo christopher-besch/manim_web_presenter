@@ -14,7 +14,7 @@ As long as you have some helpful people around you, there's no problem.
 Simply use a different laptop and you're good to go;
 you don't have to install any software when all you have to do is open a web page.
 
-## Note:
+## Note
 
 This web presenter will soon be deprecated in favour of [The Manim Editor](https://github.com/ManimEditorProject/manim_editor).
 
