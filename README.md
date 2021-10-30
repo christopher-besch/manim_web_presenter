@@ -1,4 +1,10 @@
+This project has been superseded by the [Manim Editor](https://github.com/ManimEditorProject/manim_editor).
+It offers everything repo's features and more.
+
+Have a nice day.
+
 # Manim Web Presenter
+
 Web Presentation using Manim
 
 [![Linux Build](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml/badge.svg?branch=main)](https://github.com/christopher-besch/manim_web_presenter/actions/workflows/linux.yml)
