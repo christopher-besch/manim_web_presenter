@@ -3,8 +3,10 @@ import os
 import shutil
 import json
 import pathlib
+import sys
 from jinja2 import Template, StrictUndefined
 from typing import List, Optional, Dict
+
 
 FILE_DIR_PATH = pathlib.Path(__file__).parent.resolve()
 GLOBAL_OUTPUT_FOLDER = "presentation"
@@ -183,6 +185,14 @@ class RawPresentation:
             full_dst_filename = f"{slide.slide_id}.mp4"
             full_dst_file = os.path.join(self.output_folder, full_dst_filename)
             full_tmp_file = os.path.join(self.tmp_folder, "out.mp4")
+            
+            # windows specific path manipulation
+            if sys.platform == 'win32':
+                full_dst_filename = full_dst_filename.replace(os.sep, '/')
+                full_dst_file = full_dst_file.replace(os.sep, '/')
+                full_tmp_file = full_tmp_file.replace(os.sep, '/')
+                index_file = index_file.replace(os.sep, '/')
+            
             slide.set_video(full_dst_filename)
             manim.logger.info(f"Combining animations for slide '{slide.name}'...")
             if not ffmpeg_concat(index_file, full_tmp_file):
