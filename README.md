@@ -1,9 +1,9 @@
-This project has been superseded by the [Manim Editor](https://github.com/ManimEditorProject/manim_editor).
-It offers everything repo's features and more.
+# This project has been superseded by the [Manim Editor](https://github.com/ManimEditorProject/manim_editor).
+It offers everything this repo features and more.
 
 Have a nice day.
 
-# Manim Web Presenter
+## Manim Web Presenter
 
 Web Presentation using Manim
 
